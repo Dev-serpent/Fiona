@@ -86,7 +86,8 @@ class ToolRegistry(IToolRegistry):
     def create_default(cls) -> ToolRegistry:
         """Create a registry pre-populated with all built-in tools.
 
-        Seeds from :meth:`SciToolRegistry.create_default` and can be
+        Seeds from :meth:`SciToolRegistry.create_default`,
+        :func:`SeeOnDesk.tools.register_desk_tools`, and can be
         extended with additional tools afterward.
         """
         registry = cls()
@@ -95,6 +96,12 @@ class ToolRegistry(IToolRegistry):
             tool = sci_registry.get(spec.name)
             if tool is not None:
                 registry.register(tool, source="scitools")
+        try:
+            from SeeOnDesk.tools import register_desk_tools
+
+            register_desk_tools(registry)
+        except ImportError:
+            pass
         return registry
 
 

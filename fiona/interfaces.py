@@ -272,7 +272,7 @@ class IBrowserProvider(abc.ABC):
         """Human-readable provider identifier.
 
         Returns:
-            e.g. ``'playwright'``, ``'cdp'``, ``'selenium'``.
+            e.g. ``'selenium'``, ``'cdp'``.
         """
         ...
 

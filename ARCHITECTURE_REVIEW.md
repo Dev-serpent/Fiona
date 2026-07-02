@@ -219,7 +219,7 @@ class IBrowserProvider(ABC):
 
     @abstractmethod
     def name(self) -> str:
-        """Provider identifier, e.g. 'playwright', 'cdp', 'selenium'."""
+        """Provider identifier, e.g. 'selenium', 'cdp'."""
         ...
 
     @abstractmethod
@@ -858,7 +858,7 @@ async with ResourceGuard("browser-context-1", context.close):
 
 | Degraded Condition | Behavior |
 |---|---|
-| No browser installed | `fiona browser status` shows "not available", suggest `pip install fiona[browser]` then `playwright install` |
+| No browser installed | `fiona browser status` shows "not available", suggest `pip install fiona[browser]` |
 | CAD server port busy | Try next port, log warning, tell user `fiona ficad --port N` |
 | WebSocket disconnected | Frontend shows "Connection lost — changes will be saved locally" banner, reconnects automatically |
 | Export provider missing | Available formats listed dynamically; unknown format returns clear error with supported list |
@@ -1415,7 +1415,7 @@ GET /api/health
     "server": { "status": "ok", "uptime": 12345 },
     "browser": {
       "status": "running" | "stopped" | "error",
-      "provider": "playwright",
+      "provider": "selenium",
       "context_count": 2,
       "uptime": 5432
     },
@@ -1456,7 +1456,7 @@ Fiona/
 │   ├── __init__.py
 │   ├── _provider.py            # IBrowserProvider, IBrowserInstance, IBrowserContext
 │   ├── _manager.py             # BrowserManager (lifecycle, pooling)
-│   ├── _playwright_provider.py # Playwright implementation
+│   ├── _selenium_provider.py    # Selenium implementation
 │   ├── _config.py              # BrowserConfig, ViewportConfig
 │   ├── _errors.py              # Error hierarchy
 │   └── _types.py               # Data types (NavigationResult, etc.)
@@ -2222,7 +2222,6 @@ jobs:
         with:
           python-version: "3.13"
       - run: pip install -e ".[test,browser]"
-      - run: playwright install chromium
       - run: python -m pytest tests/ -v -m contract
 
   integration-tests:
@@ -2230,7 +2229,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: pip install -e ".[test,browser]"
-      - run: playwright install chromium
       - run: |
           python -m pytest tests/browser/test_cli_integration.py -v
           python -m pytest tests/cad_server/test_server_integration.py -v
@@ -2251,7 +2249,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: pip install -e ".[test,browser]" pytest-benchmark
-      - run: playwright install chromium
       - run: python -m pytest tests/benchmarks/ -v --benchmark-json=benchmark.json
       - uses: actions/upload-artifact@v4
         with:
@@ -2513,7 +2510,7 @@ Fiona/
 │   ├── __init__.py              # NEW
 │   ├── _provider.py             # NEW: IBrowserProvider, IBrowserInstance, IBrowserContext
 │   ├── _manager.py              # NEW: BrowserManager (state machine)
-│   ├── _playwright_provider.py  # NEW: Playwright implementation
+│   ├── _selenium_provider.py # NEW: Selenium implementation
 │   ├── _config.py               # NEW: BrowserConfig
 │   ├── _errors.py               # NEW: error hierarchy
 │   └── _types.py                # NEW: dataclasses
@@ -2551,7 +2548,6 @@ Fiona/
 │   ├── browser/
 │   │   ├── test_browser_manager.py
 │   │   ├── test_provider_contract.py
-│   │   ├── test_playwright_provider.py
 │   │   └── benchmarks/
 │   │       └── test_navigation.py
 │   ├── cad_server/

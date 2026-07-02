@@ -808,15 +808,11 @@ Added 2026-06-22. Rewritten 2026-06-30: **Playwright replaced with Selenium** fo
 ### Components
 
 - `BrowserAutomation/_manager.py` — `BrowserManager` with state machine: `STOPPED/ERROR → STARTING → RUNNING`. `start()` accepts `{STOPPED, ERROR}` as valid pre-states; clears stale `_contexts` and `_instance` on restart from ERROR; no-op when already RUNNING.
-- `BrowserAutomation/_selenium_provider.py` — Selenium WebDriver provider implementing `IBrowserProvider`, `IBrowserInstance`, `IBrowserContext` ABCs. Chrome binary resolution (in order): ① `FIONA_CHROME_BINARY` env var, ② system `google-chrome-stable` on PATH, ③ Playwright-downloaded Chrome at `~/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome` as fallback. Lazy imports for graceful fallback when Selenium not installed.
+- `BrowserAutomation/_selenium_provider.py` — Selenium WebDriver provider implementing `IBrowserProvider`, `IBrowserInstance`, `IBrowserContext` ABCs. Chrome binary resolution (in order): ① `FIONA_CHROME_BINARY` env var, ② system `google-chrome-stable` on PATH, ③ Playwright-downloaded Chrome at `~/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome` as fallback. Lazy imports for graceful fallback when Selenium not installed. (The old `_playwright_provider.py` and its test file have been removed — no longer dead code to preserve.)
 - `BrowserAutomation/_session_manager.py` — Thread-safe synchronous wrapper around the async browser automation API for CLI/agent sessions. Uses `SeleniumBrowserProvider`.
 - `BrowserAutomation/_config.py` — `BrowserConfig` dataclass. `DEFAULT_HEADLESS = True` (browser invisible by default — "echo-off" mode).
 - `BrowserAutomation/_errors.py` — Full error hierarchy (BrowserLaunchError, BrowserNotRunning, ElementNotFound, etc.)
 - `BrowserAutomation/__init__.py` — Convenience wrappers: `get_browser_manager()` (module-level singleton), `navigate()`, `click_element()`, etc.
-
-### Deprecated (dead code, preserved for reference)
-
-- `BrowserAutomation/_playwright_provider.py` — Old Playwright provider. No active imports. Tests in `tests/browser/test_playwright_provider.py` are all skipped via `@pytest.mark.skip`.
 
 ### EventBus Integration
 
@@ -840,7 +836,6 @@ Required: `selenium>=4.20.0`, `webdriver-manager>=4.0.0`
 ### Tests
 
 - `tests/browser/test_browser_manager.py` — 24 tests: State machine transitions, `ERROR→STARTING` recovery, graceful start (no-op on running, recovery from ERROR)
-- `tests/browser/test_playwright_provider.py` — 28 skipped (deprecated Playwright provider, preserved as dead code)
 
 ## CAD Server — JSON-RPC 2.0 WebSocket Server
 

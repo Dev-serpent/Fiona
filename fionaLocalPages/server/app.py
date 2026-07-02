@@ -56,6 +56,7 @@ from fionaLocalPages.server.handlers import (
     agents_crud,
     bindings,
     browser,
+    calendar,
     camcoms,
     config,
     desktop,
@@ -372,6 +373,18 @@ def _setup_api_routes(app: web.Application) -> None:
     app.router.add_post("/api/v1/sciretrieval/getdata", sciretrieval.sciretrieval_getdata)
     app.router.add_post("/api/v1/sciretrieval/cache/clear", sciretrieval.sciretrieval_cache_clear)
     app.router.add_post("/api/v1/sciretrieval/enrich", sciretrieval.sciretrieval_enrich)
+
+    # ── Calendar ──────────────────────────────────────────────────────
+    app.router.add_get("/api/v1/calendar/events", calendar.list_events)
+    app.router.add_get("/api/v1/calendar/events/search", calendar.search_events)
+    app.router.add_post("/api/v1/calendar/events", calendar.create_event)
+    app.router.add_get("/api/v1/calendar/events/{id}", calendar.get_event)
+    app.router.add_put("/api/v1/calendar/events/{id}", calendar.update_event)
+    app.router.add_delete("/api/v1/calendar/events/{id}", calendar.delete_event)
+    app.router.add_get("/api/v1/calendar/stats", calendar.get_stats)
+    app.router.add_post("/api/v1/calendar/reminders", calendar.create_reminder)
+    app.router.add_get("/api/v1/calendar/reminders/due", calendar.get_due_reminders)
+    app.router.add_post("/api/v1/calendar/reminders/{id}/mark-fired", calendar.mark_reminder_fired)
 
 
 def _setup_websocket(app: web.Application) -> None:

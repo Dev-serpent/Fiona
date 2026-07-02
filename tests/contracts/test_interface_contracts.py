@@ -8,11 +8,11 @@ factory method.
 
 Usage::
 
-    class MyPlaywrightProviderContractTest(
+    class MySeleniumProviderContractTest(
         BrowserProviderContractTests, unittest.TestCase,
     ):
         def create_provider(self) -> IBrowserProvider:
-            return MyPlaywrightProvider()
+            return MySeleniumProvider()
 
 See also
 --------
@@ -471,7 +471,7 @@ class BrowserProviderContractTests:
 
         class MyProviderTest(BrowserProviderContractTests, unittest.TestCase):
             def create_provider(self) -> IBrowserProvider:
-                return MyPlaywrightProvider()
+                return MySeleniumProvider()
 
     All tests are skipped when collected directly (``__test__ = False``).
     """

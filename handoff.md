@@ -214,7 +214,7 @@ SciRetrieval providers require `aiohttp>=3.9.0` (optional dependency under `[pro
 2. **Add more providers** — e.g., arXiv (preprints), Semantic Scholar, PDB (protein structures)
 3. **Multi-level NIST cache** — Add L1/L2/L3 hierarchy if profiling shows performance benefit
 4. **Keyword auto-expansion** — ML-based or heuristic keyword suggestion from query logs
-5. **Clean up dead code**: Remove `_playwright_provider.py` and its test file
+5. **[DONE] Clean up dead code**: Removed `_playwright_provider.py` and its test file; updated `fiona/di.py`, `BrowserAutomation/__init__.py`, `fiona/interfaces.py`, and documentation references.
 6. **Test full browser automation flow through FLoP UI** (manual verification in a real browser)
 
 ---

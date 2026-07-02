@@ -258,6 +258,7 @@ TerminalAssist/         btop-inspired terminal dashboard (fAT), Zellij helper
 RecallVault/            Persistent remembrance store
 SciRetrieval/           Scientific knowledge retrieval subsystem
 SciPhi/                 Scientific computing framework (OpsimKernel, models, solvers)
+Calendar/               Events, reminders, and scheduling subsystem
 DataClient/             Research/data collection app
 EyeControl/             Optional camera-based eye tracker
 CmdTrace/               Action trace logging

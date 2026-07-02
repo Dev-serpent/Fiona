@@ -270,6 +270,13 @@ const routes = [
     icon: 'terminal',
   },
   {
+    path: '/calendar',
+    name: 'calendar',
+    component: () => import('../pages/calendar.js'),
+    title: 'Calendar',
+    icon: 'calendar',
+  },
+  {
     path: '/workspace',
     name: 'workspace',
     component: () => import('../pages/workspace.js'),

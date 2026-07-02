@@ -6,7 +6,7 @@ while remaining pytest-friendly.
 Usage:
     container = FionaContainer()
     container.register_instance("config", config)
-    container.register_factory("browser_provider", lambda: PlaywrightProvider())
+    container.register_factory("browser_provider", lambda: SeleniumBrowserProvider())
     browser = container.resolve("browser_provider")
 """
 

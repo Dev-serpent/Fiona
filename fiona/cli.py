@@ -197,6 +197,10 @@ def main() -> None:
         _run_sciphi(args)
         return
 
+    if args.layer == "calendar":
+        _run_calendar(args)
+        return
+
     if args.layer in {"sire", "sr"}:
         from SciRetrieval.cli import run as sire_main
         sire_main(args.sire_args)
@@ -227,6 +231,7 @@ def _build_parser() -> argparse.ArgumentParser:
   fiona voice ...        Deterministic typed/voice phrase to action translation
   fiona macro ...        Named reusable action macros
   fiona recall ...       RecallVault structured remembrance storage
+  fiona calendar ...     Calendar events, reminders, and scheduling
   fiona fat ...          Fiona Terminal Assistance dashboard and Zellij layout
   fiona cli              Sliding Fiona terminal command center
   fiona seeondesk ...    Desktop awareness and active-window identification
@@ -367,6 +372,12 @@ Use "fiona <group> --help" for a group-specific command grid.""",
     voice_listen.add_argument("--model", default="tiny", help="Whisper model size (tiny, base, small).")
     voice_listen.add_argument("--dry-run", action="store_true")
 
+    voice_converse = voice_subparsers.add_parser("converse", help="Start an interactive conversational voice loop (VAD + STT + TTS).")
+    voice_converse.add_argument("--model", default="tiny", help="Whisper model size (tiny, base, small).")
+    voice_converse.add_argument("--no-tts", action="store_true", help="Disable TTS output (text-only mode).")
+    voice_converse.add_argument("--timeout", type=float, default=30.0, help="Max seconds to wait for speech before idle.")
+    voice_converse.add_argument("--llm", default=None, help="LLM endpoint to use for responses (default: echo mode).")
+
     voice_wake_test = voice_subparsers.add_parser("wake-test", help="Test wake word detection engine status.")
     voice_wake_test.add_argument("--wake-word", default="fiona", help="Wake word to test (default: fiona).")
 
@@ -450,7 +461,7 @@ Use "fiona <group> --help" for a group-specific command grid.""",
     seeondesk = subparsers.add_parser(
         "seeondesk",
         aliases=["sod"],
-        help="Identify the current desktop session and focused app/window.",
+        help="Desktop awareness, OCR, screen monitoring, and change detection.",
     )
     seeondesk_subparsers = seeondesk.add_subparsers(dest="seeondesk_command", required=True)
     seeondesk_subparsers.add_parser("active", help="Show the currently focused app/window.")
@@ -464,6 +475,27 @@ Use "fiona <group> --help" for a group-specific command grid.""",
     analyze = seeondesk_subparsers.add_parser("analyze", help="Analyze the screen using the local agent.")
     analyze.add_argument("prompt", help="The question to ask about the screen.")
     analyze.add_argument("--image", type=Path, default=None, help="Optional existing image to analyze.")
+
+    # --- Tier 2 Perception subcommands ---
+    ocr = seeondesk_subparsers.add_parser("ocr", help="Read text from a screen region or image file using OCR.")
+    ocr.add_argument("--region", type=str, default=None, help="Screen region to OCR: 'x,y,w,h'")
+    ocr.add_argument("--file", type=Path, default=None, help="Image file to OCR instead of screen region")
+    ocr.add_argument("--lang", type=str, default="eng", help="Tesseract language code (default: eng)")
+    ocr.add_argument("--psm", type=int, default=3, help="Tesseract PSM mode (default: 3)")
+
+    check = seeondesk_subparsers.add_parser("check", help="Check OCR availability and installed languages.")
+
+    watch = seeondesk_subparsers.add_parser("watch", help="Watch a screen region for text changes (press Ctrl+C to stop).")
+    watch.add_argument("region", type=str, help="Screen region to watch: 'x,y,w,h'")
+    watch.add_argument("--lang", type=str, default="eng", help="Tesseract language code (default: eng)")
+    watch.add_argument("--interval", type=float, default=1.0, help="Poll interval in seconds (default: 1.0)")
+    watch.add_argument("--duration", type=float, default=None, help="Max watch duration in seconds (default: no limit)")
+
+    monitor = seeondesk_subparsers.add_parser("monitor", help="Monitor screen for pixel changes (press Ctrl+C to stop).")
+    monitor.add_argument("--region", type=str, default=None, help="Region to monitor: 'x,y,w,h'")
+    monitor.add_argument("--interval", type=float, default=0.5, help="Poll interval in seconds (default: 0.5)")
+    monitor.add_argument("--threshold", type=int, default=30, help="Pixel difference threshold (default: 30)")
+    monitor.add_argument("--duration", type=float, default=None, help="Max monitor duration in seconds (default: no limit)")
 
     vsee = subparsers.add_parser("vsee", help="Open the standalone Vsee Holography window.")
     vsee.add_argument("--points", type=Path, default=None)
@@ -532,6 +564,10 @@ Use "fiona <group> --help" for a group-specific command grid.""",
         help="SciRetrieval — scientific knowledge retrieval from NCBI, PubChem, NIST.",
     )
     sire_parser.add_argument("sire_args", nargs=argparse.REMAINDER)
+
+    # ── Calendar ──────────────────────────────────────────────────────
+    from Calendar.cli import build_parser as build_calendar_parser
+    build_calendar_parser(subparsers)
 
     tools_parser = subparsers.add_parser(
         "tools",
@@ -1105,6 +1141,42 @@ def _run_voice(args: argparse.Namespace) -> None:
             raise SystemExit(f"Voice engine error: {e}")
         return
 
+    if args.voice_command == "converse":
+        print("Starting conversational voice loop (Ctrl+C to stop)...")
+        print(f"  Whisper model: {args.model}")
+        print(f"  TTS enabled:   {not args.no_tts}")
+        print(f"  Listen timeout: {args.timeout}s")
+        print()
+
+        from Voice.conversation_loop import ConversationLoop, LoopConfig
+        from Voice.turn_state import TurnState
+
+        loop = ConversationLoop(
+            config=LoopConfig(
+                stt_model=args.model,
+                tts_enabled=not args.no_tts,
+                turn__listener_timeout=args.timeout,
+            ),
+        )
+
+        # Wire callbacks for CLI output
+        loop.on_transcription = lambda text: print(f"\n  You: {text}")
+        loop.on_response = lambda text: print(f"  Fiona: {text}")
+        loop.on_state_change = lambda old, new: print(f"  [{old.value} → {new.value}]", end="")
+
+        try:
+            loop.start()
+            print("Listening... (speak into your microphone)")
+            while loop.running:
+                import time as _time
+                _time.sleep(0.1)
+        except KeyboardInterrupt:
+            print("\nStopping conversation loop...")
+        finally:
+            loop.stop()
+            print("Conversation loop stopped.")
+        return
+
     if args.voice_command == "wake-test":
         _run_voice_wake_test(args)
         return
@@ -1519,6 +1591,161 @@ def _run_sciphi(args: argparse.Namespace) -> None:
     sciphi_main(args.sciphi_args)
 
 
+def _run_calendar(args: argparse.Namespace) -> None:
+    """Dispatch Calendar CLI commands using the already-parsed namespace."""
+    from datetime import datetime, timezone, timedelta
+    from Calendar.event_store import get_store
+    from Calendar.cli import build_parser
+
+    store = get_store()
+
+    # Build the command dispatch table matching Calendar/cli.py
+    def _cmd_add():
+        from Calendar.nlp_time import parse_datetime, parse_duration
+        from datetime import timedelta
+
+        start = None
+        if args.at:
+            result = parse_datetime(args.at)
+            if result["dt"]:
+                start = result["dt"]
+        if not start:
+            start = datetime.now(timezone.utc)
+
+        duration = None
+        if args.duration:
+            duration = parse_duration(args.duration)
+        elif args.minutes:
+            duration = timedelta(minutes=args.minutes)
+
+        end = None
+        if args.end:
+            try:
+                end = datetime.fromisoformat(args.end)
+            except ValueError:
+                end = None
+        elif duration and start:
+            end = start + duration
+
+        event = store.create_event(
+            title=args.title,
+            start_time=start,
+            end_time=end,
+            description=args.description or "",
+            all_day=args.all_day,
+            location=args.location or "",
+            recurrence=args.recurrence or "none",
+            category=args.category or "default",
+            color=args.color or "#4f8cff",
+            reminders=args.reminders or [],
+            tags=args.tags or [],
+        )
+        print(f"Created event: {event['title']} (id={event['id']})")
+
+    def _cmd_list():
+        start = end = None
+        now = datetime.now(timezone.utc)
+        if args.today:
+            start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+            end = start.replace(hour=23, minute=59, second=59)
+        elif args.week:
+            from datetime import timedelta
+            start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+            end = start + timedelta(days=7)
+        elif args.upcoming:
+            from datetime import timedelta
+            start = now
+            end = start + timedelta(days=args.upcoming)
+
+        events = store.list_events(start=start, end=end, category=args.category, limit=args.limit or 50)
+        if not events:
+            print("No events found.")
+            return
+        print(f"Events ({len(events)}):")
+        for ev in events:
+            s = ev["start_time"][:16]
+            e = ev["end_time"][:16] if ev.get("end_time") else ""
+            r = f" [{ev['recurrence']}]" if ev["recurrence"] != "none" else ""
+            print(f"  {s} → {e}  {ev['title']}{r}")
+
+    def _cmd_get():
+        event = store.get_event(args.id)
+        if not event:
+            print(f"Event not found: {args.id}")
+            return
+        import json
+        print(json.dumps(event, indent=2, default=str))
+
+    def _cmd_update():
+        kwargs = {}
+        if args.title: kwargs["title"] = args.title
+        if args.description: kwargs["description"] = args.description
+        if args.category: kwargs["category"] = args.category
+        updated = store.update_event(args.id, **kwargs)
+        if updated:
+            print(f"Updated: {updated['title']}")
+        else:
+            print(f"Event not found: {args.id}")
+
+    def _cmd_delete():
+        if store.delete_event(args.id):
+            print(f"Deleted event: {args.id}")
+        else:
+            print(f"Event not found: {args.id}")
+
+    def _cmd_search():
+        results = store.search_events(args.query, limit=args.limit or 20)
+        if not results:
+            print("No matching events.")
+            return
+        for ev in results:
+            print(f"  {ev['start_time'][:16]}  {ev['title']}")
+
+    def _cmd_stats():
+        import json
+        print(json.dumps(store.get_stats(), indent=2))
+
+    def _cmd_remind():
+        from Calendar.nlp_time import parse_datetime
+        trigger = None
+        if args.at:
+            result = parse_datetime(args.at)
+            if result["dt"]:
+                trigger = result["dt"]
+        else:
+            trigger = datetime.now(timezone.utc) + __import__("datetime").timedelta(hours=1)
+        if trigger:
+            reminder = store.create_standalone_reminder(args.title, trigger)
+            print(f"Created reminder: {reminder['title']} at {reminder['trigger_at']}")
+
+    def _cmd_reminders():
+        reminders = store.list_reminders(include_fired=args.all, limit=args.limit or 50)
+        if not reminders:
+            print("No reminders.")
+            return
+        for r in reminders:
+            f = " [FIRED]" if r["fired"] else ""
+            print(f"  {r['trigger_at'][:16]}  {r['title']}{f}")
+
+    dispatch = {
+        "add": _cmd_add,
+        "list": _cmd_list,
+        "get": _cmd_get,
+        "update": _cmd_update,
+        "delete": _cmd_delete,
+        "search": _cmd_search,
+        "stats": _cmd_stats,
+        "remind": _cmd_remind,
+        "reminders": _cmd_reminders,
+    }
+
+    handler = dispatch.get(args.calendar_command)
+    if handler:
+        handler()
+    else:
+        build_parser().print_help()
+
+
 def _run_seeondesk(args: argparse.Namespace) -> None:
     from SeeOnDesk import (
         active_window_info,
@@ -1549,6 +1776,98 @@ def _run_seeondesk(args: argparse.Namespace) -> None:
         print("Analyzing screen... (this may take a few seconds)")
         print(analyze_screen(args.prompt, image_path=args.image))
         return
+
+    # --- Tier 2 Perception handlers ---
+    if args.seeondesk_command == "ocr":
+        from SeeOnDesk.ocr import read_image, read_screen_region, parse_region_string, tesseract_available
+
+        if not tesseract_available():
+            raise SystemExit("Error: Tesseract OCR is not available. Install tesseract-ocr and pytesseract.")
+
+        if args.file:
+            result = read_image(args.file, lang=args.lang, psm=args.psm)
+        elif args.region:
+            region = parse_region_string(args.region)
+            result = read_screen_region(region=region, lang=args.lang, psm=args.psm)
+        else:
+            result = read_screen_region(lang=args.lang, psm=args.psm)
+
+        if not result.success:
+            raise SystemExit(f"OCR failed: {result.error}")
+        print(f"[Confidence: {result.confidence:.1f}%]")
+        print(result.text)
+        return
+
+    if args.seeondesk_command == "check":
+        from SeeOnDesk.ocr import list_supported_languages, tesseract_available
+
+        avail = tesseract_available()
+        print(f"Tesseract available: {avail}")
+        if avail:
+            langs = list_supported_languages()
+            print(f"Supported languages: {', '.join(langs)}")
+        return
+
+    if args.seeondesk_command == "watch":
+        from SeeOnDesk.ocr import parse_region_string
+        from SeeOnDesk.region_monitor import RegionConfig, RegionMonitor
+
+        region = parse_region_string(args.region)
+        config = RegionConfig(region=region, lang=args.lang, poll_interval=args.interval)
+        monitor = RegionMonitor()
+        changes: list[str] = []
+
+        def _on_change(change):
+            ts = change.timestamp.split("T")[0]
+            changes.append(f"[{ts}] {change.diff_type}: {change.new_text!r}")
+            print(f"[{ts}] {change.diff_type}: {change.new_text!r}")
+
+        watch_id = monitor.watch_region(config, on_change=_on_change)
+        print(f"Watching region {args.region} (watch_id={watch_id})... Press Ctrl+C to stop.")
+        try:
+            import time
+            deadline = None if args.duration is None else time.monotonic() + args.duration
+            while True:
+                if deadline and time.monotonic() >= deadline:
+                    break
+                time.sleep(0.1)
+        except KeyboardInterrupt:
+            pass
+        finally:
+            monitor.unwatch_region(watch_id)
+            print(f"\nStopped. Captured {len(changes)} text change(s).")
+        return
+
+    if args.seeondesk_command == "monitor":
+        from SeeOnDesk.ocr import parse_region_string
+        from SeeOnDesk.screen_monitor import ScreenMonitor
+
+        region = parse_region_string(args.region) if args.region else None
+        sm = ScreenMonitor(poll_interval=args.interval, region=region, threshold=args.threshold)
+        changes: list[str] = []
+
+        def _on_change(change):
+            ts = change.timestamp.split("T")[0]
+            changes.append(f"[{ts}] {change.change_type} ({change.pixel_count} px, {change.change_ratio:.2%})")
+            print(f"[{ts}] {change.change_type} — {change.pixel_count} px changed ({change.change_ratio:.2%})")
+
+        sm.on_change(_on_change)
+        sm.start()
+        print(f"Monitoring screen{' region ' + args.region if args.region else ''}... Press Ctrl+C to stop.")
+        try:
+            import time
+            deadline = None if args.duration is None else time.monotonic() + args.duration
+            while True:
+                if deadline and time.monotonic() >= deadline:
+                    break
+                time.sleep(0.1)
+        except KeyboardInterrupt:
+            pass
+        finally:
+            sm.stop()
+            print(f"\nStopped. Captured {sm.capture_count()} frames, {len(changes)} change(s).")
+        return
+
     raise SystemExit(f"unknown SeeOnDesk command: {args.seeondesk_command}")
 
 

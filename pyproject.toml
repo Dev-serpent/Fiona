@@ -29,6 +29,9 @@ sciphi = [
 sciretrieval = [
   "aiohttp>=3.9.0",
 ]
+perception = [
+  "pytesseract>=0.3.10",
+]
 test = [
   "pytest>=8.0.0",
   "pytest-asyncio>=0.23.0",
@@ -55,7 +58,8 @@ packages = ["fiona", "fiona.tools",
             "SciPhi.solvers.deterministic", "SciPhi.solvers.stochastic", "SciPhi.solvers.symbolic", "SciPhi.solvers.optimization",
             "SciPhi.visualization", "SciPhi.reports", "SciPhi.tests",
             "SciRetrieval", "SciRetrieval.providers", "SciRetrieval.scilab", "SciRetrieval.scitools",
-            "SciRetrieval.cache", "SciRetrieval.data"]
+            "SciRetrieval.cache", "SciRetrieval.data",
+            "Calendar"]
 
 [tool.setuptools.package-data]
 CamComs = ["esp32payload/*"]

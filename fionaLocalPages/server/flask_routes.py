@@ -319,6 +319,22 @@ def register_routes(app: flask.Flask) -> None:
             logger.warning("Browser data unavailable: %s", e)
         return {"browser_status": {"state": "unknown", "running": False}}
 
+    def _calendar_data() -> dict:
+        try:
+            from fionaLocalPages.server.handlers.calendar import list_events, get_stats
+            events_result = _call_handler(list_events, {"upcoming": "14"})
+            events = []
+            if isinstance(events_result, dict) and events_result.get("ok"):
+                events = events_result["data"].get("events", [])
+            stats_result = _call_handler(get_stats, {})
+            stats = {}
+            if isinstance(stats_result, dict) and stats_result.get("ok"):
+                stats = stats_result.get("data", {})
+            return {"events": events, "stats": stats}
+        except Exception as e:
+            logger.warning("Calendar data unavailable: %s", e)
+        return {"events": [], "stats": {}}
+
     def _files_data() -> dict:
         try:
             from fionaLocalPages.server.handlers.files import file_list
@@ -360,6 +376,7 @@ def register_routes(app: flask.Flask) -> None:
         ("/browser",         "browser",       "Browser",       _browser_data),
         ("/files",           "file-explorer", "Files",         _files_data),
         ("/performance",     "performance",   "Performance",   _performance_data),
+        ("/calendar",        "calendar",      "Calendar",      _calendar_data),
     ]
 
     for path, template, title, data_fn in routes:
@@ -603,4 +620,72 @@ def register_action_handlers(app: flask.Flask) -> None:
             return _json_response(result)
         except Exception as e:
             logger.warning("Notification dismiss failed: %s", e)
+            return _json_response({"ok": False, "error": str(e)}, 400)
+
+    # ── Calendar ──────────────────────────────────────────────────────
+    @app.route("/calendar/events/create", methods=["POST"])
+    def calendar_events_create():
+        try:
+            from fionaLocalPages.server.handlers.calendar import create_event
+            body = flask.request.get_json(force=True, silent=True) or {}
+            result = _call_handler_post(create_event, body)
+            return _json_response(result, result.get("_status", 201) if isinstance(result, dict) else 201)
+        except Exception as e:
+            logger.warning("Calendar event create failed: %s", e)
+            return _json_response({"ok": False, "error": str(e)}, 400)
+
+    @app.route("/calendar/events/update", methods=["POST"])
+    def calendar_events_update():
+        try:
+            from fionaLocalPages.server.handlers.calendar import update_event
+            body = flask.request.get_json(force=True, silent=True) or {}
+            # The PUT route needs event id in match_info.  We pass it in the body.
+            from unittest.mock import MagicMock, AsyncMock
+            import asyncio
+            import json
+            async def _body_json() -> dict:
+                return body
+            mock_request = MagicMock()
+            mock_request.app = {"ws_manager": None}
+            mock_request.match_info = {"id": body.get("id", "")}
+            mock_request.query = {}
+            mock_request.headers = {"Content-Type": "application/json"}
+            mock_request.method = "PUT"
+            mock_request.json = AsyncMock(side_effect=_body_json)
+            loop = asyncio.new_event_loop()
+            try:
+                result = loop.run_until_complete(update_event(mock_request))
+            finally:
+                loop.close()
+            if hasattr(result, "body"):
+                result = json.loads(result.body)
+            return _json_response(result)
+        except Exception as e:
+            logger.warning("Calendar event update failed: %s", e)
+            return _json_response({"ok": False, "error": str(e)}, 400)
+
+    @app.route("/calendar/events/delete", methods=["POST"])
+    def calendar_events_delete():
+        try:
+            from fionaLocalPages.server.handlers.calendar import delete_event
+            body = flask.request.get_json(force=True, silent=True) or {}
+            from unittest.mock import MagicMock
+            import asyncio
+            import json
+            mock_request = MagicMock()
+            mock_request.app = {"ws_manager": None}
+            mock_request.match_info = {"id": body.get("id", "")}
+            mock_request.query = {}
+            mock_request.headers = {}
+            mock_request.method = "DELETE"
+            loop = asyncio.new_event_loop()
+            try:
+                result = loop.run_until_complete(delete_event(mock_request))
+            finally:
+                loop.close()
+            if hasattr(result, "body"):
+                result = json.loads(result.body)
+            return _json_response(result)
+        except Exception as e:
+            logger.warning("Calendar event delete failed: %s", e)
             return _json_response({"ok": False, "error": str(e)}, 400)

@@ -91,7 +91,6 @@ and `sys.modules` aliasing, plus `__getattr__` lazy loading for `ChordListener`.
 ```
 tests/
 ├── browser/test_browser_manager.py            # 24 tests (Selenium state machine)
-├── browser/test_playwright_provider.py         # 28 skipped (deprecated Playwright)
 ├── cad_server/test_command_executor.py, test_document_manager.py, test_export_manager.py, test_protocol.py
 ├── contracts/test_interface_contracts.py
 └── test_*.py  (flat file-per-subsystem, ~55 files)

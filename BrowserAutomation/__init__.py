@@ -1,8 +1,7 @@
 """Browser automation subsystem for Fiona.
 
-Wraps Playwright with the interface contracts defined in
-:mod:`fiona.interfaces`.  All Playwright dependencies are imported
-lazily so the package can be imported without Playwright installed.
+Uses Selenium via :class:`BrowserAutomation._selenium_provider.SeleniumBrowserProvider`
+with the interface contracts defined in :mod:`fiona.interfaces`.
 """
 
 from __future__ import annotations
