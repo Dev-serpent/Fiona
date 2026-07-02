@@ -32,6 +32,19 @@ sciretrieval = [
 perception = [
   "pytesseract>=0.3.10",
 ]
+communications = [
+  "aiohttp>=3.9.0",
+]
+smarthome = [
+  "paho-mqtt>=1.6.0",
+]
+home-backend = [
+  "aiohttp>=3.9.0",
+  "paho-mqtt>=1.6.0",
+]
+all = [
+  "fiona[eyecontrol,browser,sciphi,sciretrieval,perception,communications,smarthome,home-backend]",
+]
 test = [
   "pytest>=8.0.0",
   "pytest-asyncio>=0.23.0",
@@ -59,7 +72,8 @@ packages = ["fiona", "fiona.tools",
             "SciPhi.visualization", "SciPhi.reports", "SciPhi.tests",
             "SciRetrieval", "SciRetrieval.providers", "SciRetrieval.scilab", "SciRetrieval.scitools",
             "SciRetrieval.cache", "SciRetrieval.data",
-            "Calendar"]
+            "Calendar",
+            "Communications", "SmartHome", "GNS3Automation", "HomeBackend"]
 
 [tool.setuptools.package-data]
 CamComs = ["esp32payload/*"]

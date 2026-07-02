@@ -201,6 +201,10 @@ def main() -> None:
         _run_calendar(args)
         return
 
+    if args.layer == "email":
+        _run_email(args)
+        return
+
     if args.layer in {"sire", "sr"}:
         from SciRetrieval.cli import run as sire_main
         sire_main(args.sire_args)
@@ -232,6 +236,7 @@ def _build_parser() -> argparse.ArgumentParser:
   fiona macro ...        Named reusable action macros
   fiona recall ...       RecallVault structured remembrance storage
   fiona calendar ...     Calendar events, reminders, and scheduling
+  fiona email ...        Email — list, read, send, search, configure, and watch
   fiona fat ...          Fiona Terminal Assistance dashboard and Zellij layout
   fiona cli              Sliding Fiona terminal command center
   fiona seeondesk ...    Desktop awareness and active-window identification
@@ -568,6 +573,10 @@ Use "fiona <group> --help" for a group-specific command grid.""",
     # ── Calendar ──────────────────────────────────────────────────────
     from Calendar.cli import build_parser as build_calendar_parser
     build_calendar_parser(subparsers)
+
+    # ── Email ─────────────────────────────────────────────────────────
+    from Communications.cli import build_parser as build_email_parser
+    build_email_parser(subparsers)
 
     tools_parser = subparsers.add_parser(
         "tools",
@@ -1743,6 +1752,17 @@ def _run_calendar(args: argparse.Namespace) -> None:
     if handler:
         handler()
     else:
+        build_parser().print_help()
+
+
+def _run_email(args: argparse.Namespace) -> None:
+    """Dispatch email CLI commands."""
+    from Communications.cli import _COMMANDS
+    handler = _COMMANDS.get(args.email_command)
+    if handler:
+        handler(args)
+    else:
+        from Communications.cli import build_parser
         build_parser().print_help()
 
 

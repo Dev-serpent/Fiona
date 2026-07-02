@@ -324,6 +324,36 @@ def register_tool_runtime(container: FionaContainer) -> None:
     container.register_factory("tool.runtime", _factory)
 
 
+def register_email_client(container: FionaContainer) -> None:
+    """Register EmailClient in the DI container.
+
+    Args:
+        container: A FionaContainer instance.
+    """
+    from pathlib import Path
+
+    from Communications.email_client import EmailClient, EmailConfig
+
+    config_path = Path.home() / ".config" / "fiona" / "email.json"
+
+    def _load_email_config() -> EmailConfig:
+        if config_path.exists():
+            import json
+            from dataclasses import fields
+
+            data = json.loads(config_path.read_text(encoding="utf-8"))
+            valid = {f.name for f in fields(EmailConfig)}
+            filtered = {k: v for k, v in data.items() if k in valid}
+            return EmailConfig(**filtered)
+        return EmailConfig()
+
+    container.register_factory("email.config", _load_email_config)
+    container.register_factory(
+        "email.client",
+        lambda: EmailClient(container.resolve("email.config")),
+    )
+
+
 def get_sci_retrieval_bridge(
     container: FionaContainer | None = None,
 ) -> "MainTextBridge":

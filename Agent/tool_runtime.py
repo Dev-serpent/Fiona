@@ -102,6 +102,12 @@ class ToolRegistry(IToolRegistry):
             register_desk_tools(registry)
         except ImportError:
             pass
+        try:
+            from Communications.email_tools import register_email_tools
+
+            register_email_tools(registry)
+        except ImportError:
+            pass
         return registry
 
 
