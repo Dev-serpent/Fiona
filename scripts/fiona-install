@@ -3,8 +3,9 @@
 # fiona-install — Install Fiona and all its dependencies
 # ============================================================================
 # Usage:
-#   ./scripts/fiona-install              # Install everything
+#   ./scripts/fiona-install              # Install everything (core + browser + iot + web)
 #   ./scripts/fiona-install --minimal    # Core only, no optional deps
+#   ./scripts/fiona-install --iot        # Core + SmartHome/IoT subsystem only
 #   ./scripts/fiona-install --venv       # Use venv instead of conda
 #   ./scripts/fiona-install --help       # Show usage
 # ============================================================================
@@ -28,6 +29,7 @@ ENV_NAME="quiktieper"
 # ── Flags ───────────────────────────────────────────────────────────────────
 MINIMAL=false
 USE_VENV=false
+IOT_ONLY=false
 
 # ── Help ────────────────────────────────────────────────────────────────────
 usage() {
@@ -36,7 +38,8 @@ usage() {
     echo "Install Fiona and all its dependencies."
     echo ""
     echo "Options:"
-    echo "  --minimal    Core only — skip optional deps (browser, eyecontrol, web)"
+    echo "  --minimal    Core only — skip optional deps (browser, eyecontrol, web, iot)"
+    echo "  --iot        Install core + SmartHome/IoT subsystem only (skip browser, eyecontrol, web)"
     echo "  --venv       Use Python venv instead of conda"
     echo "  --help       Show this help message"
     exit 0
@@ -45,11 +48,17 @@ usage() {
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --minimal) MINIMAL=true; shift ;;
+        --iot)     IOT_ONLY=true; shift ;;
         --venv)    USE_VENV=true; shift ;;
         --help|-h) usage ;;
         *) echo "Unknown option: $1"; usage ;;
     esac
 done
+
+# --iot implies non-minimal
+if [ "$IOT_ONLY" = true ]; then
+    MINIMAL=false
+fi
 
 # ── Banner ──────────────────────────────────────────────────────────────────
 echo ""
@@ -58,12 +67,15 @@ echo -e "${CYAN}║        Fiona — Installation Script          ║${NC}"
 echo -e "${CYAN}╚══════════════════════════════════════════════╝${NC}"
 echo ""
 echo -e "${BLUE}Project root:${NC} $PROJECT_ROOT"
-echo -e "${BLUE}Mode:${NC}        $([ "$MINIMAL" = true ] && echo "minimal" || echo "full")"
+MODE_LABEL="full"
+[ "$MINIMAL" = true ] && MODE_LABEL="minimal"
+[ "$IOT_ONLY" = true ] && MODE_LABEL="iot-only"
+echo -e "${BLUE}Mode:${NC}        $MODE_LABEL"
 echo -e "${BLUE}Environment:${NC} $([ "$USE_VENV" = true ] && echo "venv" || echo "conda ($ENV_NAME)")"
 echo ""
 
 # ── Pre-checks ──────────────────────────────────────────────────────────────
-echo -e "${YELLOW}[1/7] Checking prerequisites...${NC}"
+echo -e "${YELLOW}[1/8] Checking prerequisites...${NC}"
 
 # Python version
 PYTHON=$(command -v python3 || command -v python || echo "")
@@ -98,7 +110,7 @@ echo -e "  ${GREEN}✓${NC} git"
 
 # ── Environment Setup ──────────────────────────────────────────────────────
 echo ""
-echo -e "${YELLOW}[2/7] Setting up Python environment...${NC}"
+echo -e "${YELLOW}[2/8] Setting up Python environment...${NC}"
 
 if [ "$USE_VENV" = true ]; then
     # ── venv ───────────────────────────────────────────────────────────────
@@ -143,7 +155,7 @@ echo -e "  pip:    $("$PIP" --version | cut -d' ' -f1-2)"
 
 # ── Install Core Package ───────────────────────────────────────────────────
 echo ""
-echo -e "${YELLOW}[3/7] Installing Fiona core package...${NC}"
+echo -e "${YELLOW}[3/8] Installing Fiona core package...${NC}"
 
 cd "$PROJECT_ROOT"
 "$PIP" install --upgrade pip setuptools wheel
@@ -152,9 +164,16 @@ echo -e "  ${GREEN}✓${NC} Core package installed"
 
 # ── Install Optional Dependencies ──────────────────────────────────────────
 echo ""
-echo -e "${YELLOW}[4/7] Installing optional dependencies...${NC}"
+echo -e "${YELLOW}[4/8] Installing optional dependencies...${NC}"
 
-if [ "$MINIMAL" = false ]; then
+if [ "$MINIMAL" = true ]; then
+    echo "  Skipping optional deps (--minimal mode)"
+elif [ "$IOT_ONLY" = true ]; then
+    # SmartHome / IoT subsystem only
+    echo "  Installing SmartHome/IoT subsystem..."
+    "$PIP" install -e ".[smarthome,home-backend]"
+    echo -e "  ${GREEN}✓${NC} SmartHome/IoT subsystem"
+else
     # Browser automation (Selenium)
     echo "  Installing browser automation (selenium)..."
     "$PIP" install -e ".[browser]" 2>/dev/null || "$PIP" install selenium webdriver-manager
@@ -169,13 +188,16 @@ if [ "$MINIMAL" = false ]; then
     echo "  Installing web frontend (aiohttp)..."
     "$PIP" install aiohttp
     echo -e "  ${GREEN}✓${NC} Web frontend"
-else
-    echo "  Skipping optional deps (--minimal mode)"
+
+    # SmartHome / IoT subsystem
+    echo "  Installing SmartHome/IoT subsystem (aiohttp, paho-mqtt)..."
+    "$PIP" install -e ".[smarthome,home-backend]"
+    echo -e "  ${GREEN}✓${NC} SmartHome/IoT subsystem"
 fi
 
 # ── Install System Tools ───────────────────────────────────────────────────
 echo ""
-echo -e "${YELLOW}[5/7] Checking system tools...${NC}"
+echo -e "${YELLOW}[5/8] Checking system tools...${NC}"
 
 TOOLS_MISSING=()
 for tool in ydotoold ydotoold kdotool xdotool xprop; do
@@ -204,7 +226,7 @@ fi
 
 # ── Check Chrome/Chromium for Selenium ─────────────────────────────────────
 echo ""
-echo -e "${YELLOW}[6/7] Checking Chrome/Chromium for Selenium browser automation...${NC}"
+echo -e "${YELLOW}[6/8] Checking Chrome/Chromium for Selenium browser automation...${NC}"
 
 if [ "$MINIMAL" = false ]; then
     if command -v google-chrome-stable &>/dev/null; then
@@ -220,9 +242,40 @@ if [ "$MINIMAL" = false ]; then
     echo -e "  ${GREEN}✓${NC} webdriver-manager handles chromedriver automatically"
 fi
 
+# ── Check IoT Lab Tools ─────────────────────────────────────────────────────
+echo ""
+echo -e "${YELLOW}[7/8] Checking IoT lab tools...${NC}"
+
+if [ "$MINIMAL" = false ]; then
+    # Mosquitto
+    if command -v mosquitto &>/dev/null; then
+        echo -e "  ${GREEN}✓${NC} mosquitto"
+    else
+        echo -e "  ${YELLOW}○${NC} mosquitto (not found — MQTT broker, install with 'sudo apt install mosquitto')"
+    fi
+
+    # Docker Compose (for standalone lab)
+    if command -v docker &>/dev/null && docker compose version &>/dev/null 2>&1; then
+        echo -e "  ${GREEN}✓${NC} docker compose"
+    elif command -v docker-compose &>/dev/null; then
+        echo -e "  ${GREEN}✓${NC} docker-compose (legacy)"
+    else
+        echo -e "  ${YELLOW}○${NC} docker compose (not found — needed for standalone lab, install from https://docs.docker.com/compose/install/)"
+    fi
+
+    # GNS3 (optional)
+    if command -v gns3server &>/dev/null; then
+        echo -e "  ${GREEN}✓${NC} gns3server"
+    else
+        echo -e "  ${YELLOW}○${NC} gns3server (not found — optional, for full GNS3 topology simulation)"
+    fi
+else
+    echo "  Skipping IoT lab tools check (--minimal mode)"
+fi
+
 # ── Verify Installation ────────────────────────────────────────────────────
 echo ""
-echo -e "${YELLOW}[7/7] Verifying installation...${NC}"
+echo -e "${YELLOW}[8/8] Verifying installation...${NC}"
 
 VERIFY_FAILED=false
 
@@ -240,6 +293,15 @@ for mod in FionaCore CamComs Agent BrowserAutomation; do
         echo -e "  ${GREEN}✓${NC} $mod"
     else
         echo -e "  ${YELLOW}○${NC} $mod (not importable — may need deps)"
+    fi
+done
+
+# Check IoT packages (if installed)
+for iot_mod in SmartHome HomeBackend GNS3Automation Laboratory; do
+    if "$PYTHON" -c "import $iot_mod" 2>/dev/null; then
+        echo -e "  ${GREEN}✓${NC} $iot_mod"
+    else
+        echo -e "  ${YELLOW}○${NC} $iot_mod (not installed — install with 'pip install -e .[smarthome,home-backend]')"
     fi
 done
 
@@ -278,10 +340,28 @@ echo "     fiona --help"
 echo "     fiona action list"
 echo "     fiona browser status"
 echo ""
-echo -e "  ${BLUE}3. Start the web dashboard:${NC}"
+echo -e "  ${BLUE}3. Start the SmartHome/IoT REST API:${NC}"
+echo "     python -m HomeBackend"
+echo "     # In another terminal:"
+echo "     curl http://localhost:8080/api/health"
+echo "     curl http://localhost:8080/api/devices"
+echo ""
+echo -e "  ${BLUE}4. Start the standalone simulated lab (Docker):${NC}"
+echo "     docker compose -f Laboratory/docker-compose.lab.yml up -d"
+echo "     docker compose -f Laboratory/docker-compose.lab.yml logs -f"
+echo ""
+echo -e "  ${BLUE}5. Or start the GNS3 lab (requires GNS3 server):${NC}"
+echo "     python -m Laboratory --auto-start --discover"
+echo ""
+if [ "$IOT_ONLY" = false ] && [ "$MINIMAL" = false ]; then
+echo -e "  ${BLUE}6. Start the web dashboard:${NC}"
 echo "     python3 fionaLocalPages/server/app.py --debug"
 echo "     # Open http://localhost:8765"
 echo ""
-echo -e "  ${BLUE}4. Run tests:${NC}"
-echo "     python3 -m pytest tests/ -v"
+fi
+echo -e "  ${BLUE}$([ "$IOT_ONLY" = false ] && [ "$MINIMAL" = false ] && echo "7" || echo "6"). Run tests:${NC}"
+echo "     python -m pytest tests/ -v"
+echo ""
+echo -e "  ${BLUE}$([ "$IOT_ONLY" = false ] && [ "$MINIMAL" = false ] && echo "8" || echo "7"). Run SmartHome/IoT tests:${NC}"
+echo "     python -m pytest SmartHome/tests/ HomeBackend/tests/ GNS3Automation/tests/ Laboratory/tests/ -v"
 echo ""
