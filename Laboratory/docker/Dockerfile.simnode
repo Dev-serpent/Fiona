@@ -1,0 +1,17 @@
+# syntax=docker/dockerfile:1
+# Fiona IoT Laboratory — Simulated Device Node
+#
+# Build:   docker build -t fiona/sim-node:latest -f Dockerfile.simnode .
+# Run:     docker run --rm fiona/sim-node:light --name test-light --mqtt-host <broker>
+
+FROM python:3.11-alpine
+
+RUN apk add --no-cache apk-tools && \
+    pip install --no-cache-dir paho-mqtt==2.1.0
+
+# ── Copy simulation scripts ──────────────────────────────────────────────
+WORKDIR /sim
+COPY light_sim.py sensor_sim.py switch_sim.py ./
+
+# Default: print help
+CMD ["python3", "-c", "print('Fiona sim-node: use light_sim.py, sensor_sim.py, or switch_sim.py')"]

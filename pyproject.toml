@@ -73,7 +73,10 @@ packages = ["fiona", "fiona.tools",
             "SciRetrieval", "SciRetrieval.providers", "SciRetrieval.scilab", "SciRetrieval.scitools",
             "SciRetrieval.cache", "SciRetrieval.data",
             "Calendar",
-            "Communications", "SmartHome", "GNS3Automation", "HomeBackend"]
+             "Communications",              "SmartHome", "SmartHome.devices", "SmartHome.rules", "SmartHome.tests", "GNS3Automation", "GNS3Automation.tests",
+             "HomeBackend", "HomeBackend.routes", "HomeBackend.mqtt", "HomeBackend.mqtt.tests", "HomeBackend.tests",
+             "Laboratory", "Laboratory.devices", "Laboratory.tests",
+             "tests"]
 
 [tool.setuptools.package-data]
 CamComs = ["esp32payload/*"]

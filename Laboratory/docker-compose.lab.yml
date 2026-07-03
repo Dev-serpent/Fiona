@@ -1,0 +1,156 @@
+# Fiona IoT Laboratory — Standalone Docker topology
+#
+# This is an alternative to the GNS3-based lab.  It runs the simulated
+# IoT devices as plain Docker containers, all connected to a shared
+# Mosquitto MQTT broker, without requiring GNS3.
+#
+# Usage:
+#   docker compose -f docker-compose.lab.yml up -d
+#   docker compose -f docker-compose.lab.yml logs -f
+
+services:
+  # ── MQTT Broker ─────────────────────────────────────────────────────────
+  mqtt-broker:
+    image: eclipse-mosquitto:2
+    container_name: fiona-mqtt-broker
+    ports:
+      - "1883:1883"   # MQTT
+      - "9001:9001"   # WebSocket
+    volumes:
+      - mosquitto-data:/mosquitto/data
+      - mosquitto-logs:/mosquitto/log
+    healthcheck:
+      test: ["CMD-SHELL", "mosquitto_sub -t '$$SYS/broker/uptime' -C 1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    networks:
+      - fiona-lab
+
+  # ── Simulated Devices ───────────────────────────────────────────────────
+  living-room-light:
+    build:
+      context: ./devices
+      dockerfile: ../docker/Dockerfile.simnode
+    container_name: fiona-living-room-light
+    command: python3 /sim/light_sim.py --name living-room-light --mqtt-host mqtt-broker
+    depends_on:
+      mqtt-broker:
+        condition: service_healthy
+    networks:
+      - fiona-lab
+    restart: unless-stopped
+
+  bedroom-light:
+    build:
+      context: ./devices
+      dockerfile: ../docker/Dockerfile.simnode
+    container_name: fiona-bedroom-light
+    command: python3 /sim/light_sim.py --name bedroom-light --mqtt-host mqtt-broker
+    depends_on:
+      mqtt-broker:
+        condition: service_healthy
+    networks:
+      - fiona-lab
+    restart: unless-stopped
+
+  kitchen-switch:
+    build:
+      context: ./devices
+      dockerfile: ../docker/Dockerfile.simnode
+    container_name: fiona-kitchen-switch
+    command: python3 /sim/switch_sim.py --name kitchen-switch --mqtt-host mqtt-broker
+    depends_on:
+      mqtt-broker:
+        condition: service_healthy
+    networks:
+      - fiona-lab
+    restart: unless-stopped
+
+  garage-plug:
+    build:
+      context: ./devices
+      dockerfile: ../docker/Dockerfile.simnode
+    container_name: fiona-garage-plug
+    command: python3 /sim/switch_sim.py --name garage-plug --type plug --mqtt-host mqtt-broker
+    depends_on:
+      mqtt-broker:
+        condition: service_healthy
+    networks:
+      - fiona-lab
+    restart: unless-stopped
+
+  hallway-motion:
+    build:
+      context: ./devices
+      dockerfile: ../docker/Dockerfile.simnode
+    container_name: fiona-hallway-motion
+    command: python3 /sim/sensor_sim.py --name hallway-motion --type motion --mqtt-host mqtt-broker --interval 15
+    depends_on:
+      mqtt-broker:
+        condition: service_healthy
+    networks:
+      - fiona-lab
+    restart: unless-stopped
+
+  outdoor-temp:
+    build:
+      context: ./devices
+      dockerfile: ../docker/Dockerfile.simnode
+    container_name: fiona-outdoor-temp
+    command: python3 /sim/sensor_sim.py --name outdoor-temp --type temperature --mqtt-host mqtt-broker --interval 30
+    depends_on:
+      mqtt-broker:
+        condition: service_healthy
+    networks:
+      - fiona-lab
+    restart: unless-stopped
+
+  basement-humidity:
+    build:
+      context: ./devices
+      dockerfile: ../docker/Dockerfile.simnode
+    container_name: fiona-basement-humidity
+    command: python3 /sim/sensor_sim.py --name basement-humidity --type humidity --mqtt-host mqtt-broker --interval 30
+    depends_on:
+      mqtt-broker:
+        condition: service_healthy
+    networks:
+      - fiona-lab
+    restart: unless-stopped
+
+  front-door:
+    build:
+      context: ./devices
+      dockerfile: ../docker/Dockerfile.simnode
+    container_name: fiona-front-door
+    command: python3 /sim/sensor_sim.py --name front-door --type door --mqtt-host mqtt-broker --interval 10
+    depends_on:
+      mqtt-broker:
+        condition: service_healthy
+    networks:
+      - fiona-lab
+    restart: unless-stopped
+
+  living-room-thermostat:
+    build:
+      context: ./devices
+      dockerfile: ../docker/Dockerfile.simnode
+    container_name: fiona-living-room-thermostat
+    command: python3 /sim/sensor_sim.py --name living-room-thermostat --type thermostat --mqtt-host mqtt-broker --interval 20
+    depends_on:
+      mqtt-broker:
+        condition: service_healthy
+    networks:
+      - fiona-lab
+    restart: unless-stopped
+
+networks:
+  fiona-lab:
+    name: fiona-lab
+    driver: bridge
+
+volumes:
+  mosquitto-data:
+  mosquitto-logs:

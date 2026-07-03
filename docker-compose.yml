@@ -1,0 +1,78 @@
+# Docker Compose configuration for the Fiona Home/IoT Backend Laboratory.
+#
+# Services:
+#   mosquitto   — MQTT message broker (Eclipse Mosquitto).
+#   homebackend — REST API + WebSocket + MQTT client service.
+#
+# Usage:
+#   docker compose up -d                        # start all services
+#   docker compose logs -f                      # follow logs
+#   docker compose down -v                      # stop + remove volumes
+#   docker compose exec homebackend pytest      # run test suite inside container
+#
+volumes:
+  mosquitto_data:
+    driver: local
+  mosquitto_log:
+    driver: local
+  homebackend_db:
+    driver: local
+
+services:
+
+  # ── MQTT Broker ──────────────────────────────────────────────────────────
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: fiona-mosquitto
+    restart: unless-stopped
+    ports:
+      - "1883:1883"   # MQTT (unencrypted)
+      - "9001:9001"   # MQTT over WebSocket (optional)
+    volumes:
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_log:/mosquitto/log
+      # Mount a custom config if needed (the service can generate one).
+      # - ./mosquitto/config:/mosquitto/config:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mosquitto_sub -t '$$SYS/#' -C 1 -W 3 || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # ── HomeBackend Service ──────────────────────────────────────────────────
+  homebackend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fiona-homebackend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"   # REST API + WebSocket
+    environment:
+      # Server
+      HB_HOST: "0.0.0.0"
+      HB_PORT: "8080"
+      HB_LOG_LEVEL: "INFO"
+      HB_CORS_ORIGINS: "*"
+
+      # Database
+      HB_DB_PATH: "/data/homebackend.db"
+      HB_DB_WAL: "true"
+
+      # MQTT connection (the service connects to the mosquitto container)
+      MQTT_HOST: "mosquitto"
+      MQTT_PORT: "1883"
+      MQTT_TOPIC_PREFIX: "fiona"
+    volumes:
+      - homebackend_db:/data
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8080/api/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s

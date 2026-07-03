@@ -1,0 +1,38 @@
+# ── Git / VCS ──────────────────────────────────────────────────────────────
+.git
+.gitignore
+.gitattributes
+**/.gitkeep
+
+# ── Python ─────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+.venv/
+venv/
+env/
+
+# ── IDE / Editors ──────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── OS ─────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Test & Coverage ───────────────────────────────────────────────────────
+.pytest_cache/
+.cache/
+htmlcov/
+.coverage
+*.coverage
+
+# ── Local config (not shipped) ────────────────────────────────────────────
+.env
+*.local
