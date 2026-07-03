@@ -154,6 +154,27 @@
                                 <a href="../../prototypes/" class="nav-link">Prototypes</a>
                             </li>
                             <li class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown"  aria-expanded="false">SmartHome / IoT</a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../../smarthome/architecture/" class="dropdown-item">Architecture</a>
+</li>
+                                    
+<li>
+    <a href="../../smarthome/api/" class="dropdown-item">API Reference</a>
+</li>
+                                    
+<li>
+    <a href="../../smarthome/extending/" class="dropdown-item">Extension Guide</a>
+</li>
+                                    
+<li>
+    <a href="../../smarthome/laboratory/" class="dropdown-item">Laboratory</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
                                 <a href="#" class="nav-link dropdown-toggle active" aria-current="page" role="button" data-bs-toggle="dropdown"  aria-expanded="false">Developer</a>
                                 <ul class="dropdown-menu">
                                     
@@ -224,6 +245,34 @@
               <ul class="nav flex-column">
               </ul>
             </li>
+            <li class="nav-item" data-bs-level="2"><a href="#smarthome-iot-tests" class="nav-link">SmartHome / IoT Tests</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="3"><a href="#run-all-iot-tests" class="nav-link">Run all IoT tests</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="3"><a href="#run-smarthome-tests" class="nav-link">Run SmartHome tests</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="3"><a href="#run-homebackend-tests" class="nav-link">Run HomeBackend tests</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="3"><a href="#run-gns3automation-tests" class="nav-link">Run GNS3Automation tests</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="3"><a href="#run-laboratory-tests" class="nav-link">Run Laboratory tests</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="3"><a href="#run-integration-tests-mocked-http" class="nav-link">Run integration tests (mocked HTTP)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
             <li class="nav-item" data-bs-level="2"><a href="#run-roadmap-tests" class="nav-link">Run Roadmap Tests</a>
               <ul class="nav flex-column">
               </ul>
@@ -277,6 +326,68 @@
 <pre><code class="language-bash">python -m pytest tests/ -v
 </code></pre>
 <p>Important: <code>python -m unittest discover -v</code> from the repository root currently discovers 0 tests in this layout. Use <code>-s tests</code>.</p>
+<h2 id="smarthome-iot-tests">SmartHome / IoT Tests</h2>
+<p>The IoT subsystem has <strong>427 tests</strong> across five test suites:</p>
+<table>
+<thead>
+<tr>
+<th>Suite</th>
+<th>Location</th>
+<th>Count</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SmartHome unit</td>
+<td><code>SmartHome/tests/</code></td>
+<td>295</td>
+<td>Models, drivers, registry, conditions, actions, rules, engine</td>
+</tr>
+<tr>
+<td>HomeBackend unit</td>
+<td><code>HomeBackend/tests/</code></td>
+<td>62</td>
+<td>REST API, WebSocket, MQTT client, database</td>
+</tr>
+<tr>
+<td>GNS3Automation unit</td>
+<td><code>GNS3Automation/tests/</code></td>
+<td>55</td>
+<td>REST client, project manager, topology builder, discovery</td>
+</tr>
+<tr>
+<td>Laboratory unit</td>
+<td><code>Laboratory/tests/</code></td>
+<td>37</td>
+<td>Topology definitions, sim scripts, launcher, Docker configs</td>
+</tr>
+<tr>
+<td>Integration</td>
+<td><code>tests/</code></td>
+<td>15</td>
+<td>End-to-end workflows + failure simulations (mocked HTTP)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="run-all-iot-tests">Run all IoT tests</h3>
+<pre><code class="language-bash">python -m pytest SmartHome/tests/ HomeBackend/tests/ GNS3Automation/tests/ Laboratory/tests/ tests/ -v
+</code></pre>
+<h3 id="run-smarthome-tests">Run SmartHome tests</h3>
+<pre><code class="language-bash">python -m pytest SmartHome/tests/ -v
+</code></pre>
+<h3 id="run-homebackend-tests">Run HomeBackend tests</h3>
+<pre><code class="language-bash">python -m pytest HomeBackend/tests/ -v
+</code></pre>
+<h3 id="run-gns3automation-tests">Run GNS3Automation tests</h3>
+<pre><code class="language-bash">python -m pytest GNS3Automation/tests/ -v
+</code></pre>
+<h3 id="run-laboratory-tests">Run Laboratory tests</h3>
+<pre><code class="language-bash">python -m pytest Laboratory/tests/ -v
+</code></pre>
+<h3 id="run-integration-tests-mocked-http">Run integration tests (mocked HTTP)</h3>
+<pre><code class="language-bash">python -m pytest tests/ -v -k &quot;test_smart_home&quot;
+</code></pre>
 <h2 id="run-roadmap-tests">Run Roadmap Tests</h2>
 <p>Tests specific to the Fiona Enhancement Roadmap (740+ total):</p>
 <pre><code class="language-bash"># ACL system

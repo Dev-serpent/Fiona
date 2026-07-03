@@ -154,6 +154,27 @@
                                 <a href="../../prototypes/" class="nav-link">Prototypes</a>
                             </li>
                             <li class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown"  aria-expanded="false">SmartHome / IoT</a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../../smarthome/architecture/" class="dropdown-item">Architecture</a>
+</li>
+                                    
+<li>
+    <a href="../../smarthome/api/" class="dropdown-item">API Reference</a>
+</li>
+                                    
+<li>
+    <a href="../../smarthome/extending/" class="dropdown-item">Extension Guide</a>
+</li>
+                                    
+<li>
+    <a href="../../smarthome/laboratory/" class="dropdown-item">Laboratory</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
                                 <a href="#" class="nav-link dropdown-toggle active" aria-current="page" role="button" data-bs-toggle="dropdown"  aria-expanded="false">Developer</a>
                                 <ul class="dropdown-menu">
                                     
@@ -587,6 +608,31 @@
 <td>Verifies LMStudioClient alias for OllamaClient</td>
 <td>backward compatibility</td>
 </tr>
+<tr>
+<td><code>SmartHome/tests/</code> (295)</td>
+<td>Models, interfaces, errors, config, 8 device drivers, registry, conditions, actions, rules, automation engine</td>
+<td>IoT foundation</td>
+</tr>
+<tr>
+<td><code>HomeBackend/tests/</code> (62)</td>
+<td>REST API routes, WebSocket, MQTT client, database, health endpoint</td>
+<td>IoT backend service</td>
+</tr>
+<tr>
+<td><code>GNS3Automation/tests/</code> (55)</td>
+<td>GNS3 REST client, project manager, topology builder, discovery, templates</td>
+<td>GNS3 integration</td>
+</tr>
+<tr>
+<td><code>Laboratory/tests/</code> (37)</td>
+<td>Topology definitions, launch scripts, sim node Docker image, standalone Docker Compose</td>
+<td>Built-in laboratory</td>
+</tr>
+<tr>
+<td><code>test_smart_home_integration.py</code> (15)</td>
+<td>6 end-to-end workflows + 9 failure simulations (GNS3 unreachable, partial node/link failure, HomeBackend down)</td>
+<td>Cross-package contracts</td>
+</tr>
 </tbody>
 </table>
 <h2 id="why-the-tests-exist">Why The Tests Exist</h2>
@@ -615,8 +661,12 @@
 <li>audio/notification commands are mocked.</li>
 <li><code>pynput</code>, <code>pvporcupine</code>, <code>pystray</code>, and <code>PIL</code> are mocked.</li>
 <li>temporary directories replace real config/key/trust paths.</li>
+<li>GNS3 REST API calls are mocked via <code>aioresponses</code>.</li>
+<li>MQTT broker connections are mocked (no real Mosquitto needed).</li>
+<li>aiohttp server bindings are mocked (HomeBackend routes tested via test client).</li>
+<li>Docker and docker-compose CLI calls are mocked in Laboratory tests.</li>
 </ul>
-<p>This makes the suite suitable for regular development runs even when no ESP32, LM Studio server, or active desktop automation stack is available.</p>
+<p>This makes the suite suitable for regular development runs even when no ESP32, LM Studio server, GNS3 server, MQTT broker, or Docker environment is available.</p>
 <h2 id="what-is-not-fully-tested-yet">What Is Not Fully Tested Yet</h2>
 <ul>
 <li>real ESP32 firmware crypto</li>
@@ -629,6 +679,10 @@
 <li>real Selenium browser launch in CI (all browser tests are fully mocked); Chrome must be available via webdriver-manager</li>
 <li>real CAD server integration end-to-end</li>
 <li>fionaLocalPages dashboard rendering in headless browser</li>
+<li>real GNS3 server interaction (all GNS3Automation tests use mocked HTTP)</li>
+<li>real MQTT broker end-to-end (MQTT client tests mock the broker connection)</li>
+<li>real Docker container orchestration (Laboratory tests mock docker-compose calls)</li>
+<li>real hardware IoT devices (all drivers run in virtual mode by default)</li>
 </ul>
 <h2 id="validation-commands">Validation Commands</h2>
 <p>Full test suite:</p>
@@ -652,6 +706,24 @@ python -m pytest tests/test_agent_chat_handler.py tests/test_agent_chat_store.py
 
 # CAD server tests
 python -m pytest tests/cad_server/ -v
+
+# SmartHome tests (models, drivers, registry, automation engine)
+python -m pytest SmartHome/tests/ -v
+
+# HomeBackend tests (REST API, WebSocket, MQTT, database)
+python -m pytest HomeBackend/tests/ -v
+
+# GNS3Automation tests (mocked HTTP)
+python -m pytest GNS3Automation/tests/ -v
+
+# Laboratory tests (topology, launcher, sim scripts)
+python -m pytest Laboratory/tests/ -v
+
+# All IoT tests combined
+python -m pytest SmartHome/tests/ HomeBackend/tests/ GNS3Automation/tests/ Laboratory/tests/ -v
+
+# IoT integration tests
+python -m pytest tests/ -v -k &quot;test_smart_home&quot;
 </code></pre>
 <p>Compile check:</p>
 <pre><code class="language-bash">python -m compileall Agent BrowserAutomation CamComs DataClient EyeControl FionaCore PhiConnect QuikTieper SeeOnDesk TerminalAssist Voice Vsee fiona

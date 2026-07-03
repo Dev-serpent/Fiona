@@ -154,6 +154,27 @@
                                 <a href="../prototypes/" class="nav-link">Prototypes</a>
                             </li>
                             <li class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown"  aria-expanded="false">SmartHome / IoT</a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../smarthome/architecture/" class="dropdown-item">Architecture</a>
+</li>
+                                    
+<li>
+    <a href="../smarthome/api/" class="dropdown-item">API Reference</a>
+</li>
+                                    
+<li>
+    <a href="../smarthome/extending/" class="dropdown-item">Extension Guide</a>
+</li>
+                                    
+<li>
+    <a href="../smarthome/laboratory/" class="dropdown-item">Laboratory</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
                                 <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown"  aria-expanded="false">Developer</a>
                                 <ul class="dropdown-menu">
                                     
@@ -248,6 +269,26 @@
               <ul class="nav flex-column">
               </ul>
             </li>
+            <li class="nav-item" data-bs-level="2"><a href="#smarthome-iot-subsystem" class="nav-link">SmartHome / IoT Subsystem</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="3"><a href="#quick-start-rest-api" class="nav-link">Quick Start — REST API</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="3"><a href="#quick-start-simulated-lab" class="nav-link">Quick Start — Simulated Lab</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="3"><a href="#quick-start-gns3-lab" class="nav-link">Quick Start — GNS3 Lab</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="3"><a href="#what-you-can-do_1" class="nav-link">What You Can Do</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
               </ul>
             </li>
         </ul>
@@ -331,7 +372,67 @@ python3 -m fiona.cli dataclient
 python3 -m fiona.cli camcoms paths
 python3 -m fiona.cli camcoms smoke-test
 python3 -m fiona.cli seeondesk status
-</code></pre></div>
+</code></pre>
+<h2 id="smarthome-iot-subsystem">SmartHome / IoT Subsystem</h2>
+<p>Fiona includes a complete IoT backend stack for home automation simulation.
+Four packages work together:</p>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SmartHome/</code></td>
+<td>Models, device drivers, registry, automation engine</td>
+</tr>
+<tr>
+<td><code>HomeBackend/</code></td>
+<td>REST API + WebSocket + MQTT client service</td>
+</tr>
+<tr>
+<td><code>GNS3Automation/</code></td>
+<td>GNS3 network simulation integration</td>
+</tr>
+<tr>
+<td><code>Laboratory/</code></td>
+<td>Pre-built lab topology, simulated devices, one-command launcher</td>
+</tr>
+</tbody>
+</table>
+<h3 id="quick-start-rest-api">Quick Start — REST API</h3>
+<pre><code class="language-bash"># Start the backend service (development mode)
+python -m HomeBackend
+
+# In another terminal, test it:
+curl http://localhost:8080/api/health
+curl http://localhost:8080/api/devices
+curl -X POST http://localhost:8080/api/devices \
+  -H &quot;Content-Type: application/json&quot; \
+  -d '{&quot;device_id&quot;:&quot;test-light&quot;,&quot;name&quot;:&quot;Test Light&quot;,&quot;device_type&quot;:&quot;light&quot;}'
+</code></pre>
+<h3 id="quick-start-simulated-lab">Quick Start — Simulated Lab</h3>
+<pre><code class="language-bash"># Standalone Docker lab (no GNS3 required):
+docker compose -f Laboratory/docker-compose.lab.yml up -d
+
+# See all simulated devices publishing to MQTT:
+docker compose -f Laboratory/docker-compose.lab.yml logs -f
+</code></pre>
+<h3 id="quick-start-gns3-lab">Quick Start — GNS3 Lab</h3>
+<pre><code class="language-bash"># Requires a running GNS3 server on localhost:3080
+python -m Laboratory --auto-start --discover
+</code></pre>
+<h3 id="what-you-can-do_1">What You Can Do</h3>
+<ul>
+<li><strong>Manage devices</strong>: Create, read, update, delete smart home devices via REST API</li>
+<li><strong>Group by rooms</strong>: Organise devices into rooms and scenes</li>
+<li><strong>Automate</strong>: Define rules with conditions (time, device state, comparisons) and actions (set state, activate scene, webhook, delay)</li>
+<li><strong>Simulate</strong>: Run 9 simulated IoT devices that publish MQTT readings (temperature, humidity, motion, door, light, switch, thermostat)</li>
+<li><strong>Monitor</strong>: Watch real-time events via WebSocket at <code>ws://localhost:8080/ws</code></li>
+<li><strong>Extend</strong>: Add custom device drivers, conditions, and actions (see <a href="../smarthome/extending/">Extension Guide</a>)</li>
+</ul></div>
             </div>
         </div>
 

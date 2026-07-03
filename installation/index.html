@@ -154,6 +154,27 @@
                                 <a href="../prototypes/" class="nav-link">Prototypes</a>
                             </li>
                             <li class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown"  aria-expanded="false">SmartHome / IoT</a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../smarthome/architecture/" class="dropdown-item">Architecture</a>
+</li>
+                                    
+<li>
+    <a href="../smarthome/api/" class="dropdown-item">API Reference</a>
+</li>
+                                    
+<li>
+    <a href="../smarthome/extending/" class="dropdown-item">Extension Guide</a>
+</li>
+                                    
+<li>
+    <a href="../smarthome/laboratory/" class="dropdown-item">Laboratory</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
                                 <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown"  aria-expanded="false">Developer</a>
                                 <ul class="dropdown-menu">
                                     
@@ -246,6 +267,14 @@
             </li>
             <li class="nav-item" data-bs-level="2"><a href="#python-dependencies" class="nav-link">Python Dependencies</a>
               <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#smarthome-iot-dependencies" class="nav-link">SmartHome / IoT Dependencies</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="3"><a href="#recommended-system-tools-for-the-lab" class="nav-link">Recommended system tools for the lab</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
               </ul>
             </li>
             <li class="nav-item" data-bs-level="2"><a href="#system-tools" class="nav-link">System Tools</a>
@@ -345,6 +374,52 @@ pip install -e .
 <li><code>aiohttp</code> for the web frontend (<code>fionaLocalPages/</code> server). Install manually if not resolved by the main dependencies.</li>
 <li>EyeControl dependencies (<code>mediapipe</code>, <code>opencv-python</code>, <code>pyautogui</code>): install with <code>pip install -e ".[eyecontrol]"</code>.</li>
 </ul>
+<h2 id="smarthome-iot-dependencies">SmartHome / IoT Dependencies</h2>
+<p>The IoT subsystem extends Fiona with smart home automation. These dependencies are declared in <code>pyproject.toml</code> under the <code>SmartHome</code>, <code>HomeBackend</code>, <code>GNS3Automation</code>, and <code>Laboratory</code> subpackages:</p>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Key dependencies</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SmartHome</code></td>
+<td>— (stdlib only)</td>
+<td>Core models, drivers, automation engine</td>
+</tr>
+<tr>
+<td><code>HomeBackend</code></td>
+<td><code>aiohttp</code>, <code>paho-mqtt</code></td>
+<td>REST API + WebSocket + MQTT client</td>
+</tr>
+<tr>
+<td><code>GNS3Automation</code></td>
+<td><code>aiohttp</code></td>
+<td>GNS3 REST API v2 client</td>
+</tr>
+<tr>
+<td><code>Laboratory</code></td>
+<td><code>paho-mqtt</code></td>
+<td>Simulated device scripts and lab launcher</td>
+</tr>
+</tbody>
+</table>
+<p>All dependencies are resolved automatically when you install Fiona with <code>pip install -e .</code>.</p>
+<h3 id="recommended-system-tools-for-the-lab">Recommended system tools for the lab</h3>
+<p>If you plan to use the GNS3 laboratory:</p>
+<pre><code class="language-bash"># Optional: Mosquitto MQTT broker (can also run via Docker)
+sudo apt install mosquitto mosquitto-clients
+
+# Optional: GNS3 server for full topology simulation
+# See https://docs.gns3.com/docs/getting-started/installation/linux
+</code></pre>
+<p>The lab can also run standalone with Docker Compose (no GNS3 required):</p>
+<pre><code class="language-bash"># Start 9 simulated devices + Mosquitto broker
+docker compose -f Laboratory/docker-compose.lab.yml up -d
+</code></pre>
 <h2 id="system-tools">System Tools</h2>
 <p>Runtime tools used by local control:</p>
 <ul>

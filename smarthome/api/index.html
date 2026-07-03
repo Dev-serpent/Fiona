@@ -8,7 +8,7 @@
         
         
         <link rel="shortcut icon" href="../../img/favicon.ico">
-        <title>GUI Mechanics - Fiona</title>
+        <title>API Reference - Fiona</title>
         <link href="../../css/bootstrap.min.css" rel="stylesheet">
         <link href="../../css/fontawesome.min.css" rel="stylesheet">
         <link href="../../css/brands.min.css" rel="stylesheet">
@@ -59,19 +59,19 @@
                                 <a href="../../architecture/" class="nav-link">Architecture</a>
                             </li>
                             <li class="nav-item dropdown">
-                                <a href="#" class="nav-link dropdown-toggle active" aria-current="page" role="button" data-bs-toggle="dropdown"  aria-expanded="false">Operations</a>
+                                <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown"  aria-expanded="false">Operations</a>
                                 <ul class="dropdown-menu">
                                     
 <li>
-    <a href="../cli/" class="dropdown-item">CLI Mechanics</a>
+    <a href="../../operations/cli/" class="dropdown-item">CLI Mechanics</a>
 </li>
                                     
 <li>
-    <a href="./" class="dropdown-item active" aria-current="page">GUI Mechanics</a>
+    <a href="../../operations/gui/" class="dropdown-item">GUI Mechanics</a>
 </li>
                                     
 <li>
-    <a href="../workflows/" class="dropdown-item">System Workflows</a>
+    <a href="../../operations/workflows/" class="dropdown-item">System Workflows</a>
 </li>
                                 </ul>
                             </li>
@@ -154,23 +154,23 @@
                                 <a href="../../prototypes/" class="nav-link">Prototypes</a>
                             </li>
                             <li class="nav-item dropdown">
-                                <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown"  aria-expanded="false">SmartHome / IoT</a>
+                                <a href="#" class="nav-link dropdown-toggle active" aria-current="page" role="button" data-bs-toggle="dropdown"  aria-expanded="false">SmartHome / IoT</a>
                                 <ul class="dropdown-menu">
                                     
 <li>
-    <a href="../../smarthome/architecture/" class="dropdown-item">Architecture</a>
+    <a href="../architecture/" class="dropdown-item">Architecture</a>
 </li>
                                     
 <li>
-    <a href="../../smarthome/api/" class="dropdown-item">API Reference</a>
+    <a href="./" class="dropdown-item active" aria-current="page">API Reference</a>
 </li>
                                     
 <li>
-    <a href="../../smarthome/extending/" class="dropdown-item">Extension Guide</a>
+    <a href="../extending/" class="dropdown-item">Extension Guide</a>
 </li>
                                     
 <li>
-    <a href="../../smarthome/laboratory/" class="dropdown-item">Laboratory</a>
+    <a href="../laboratory/" class="dropdown-item">Laboratory</a>
 </li>
                                 </ul>
                             </li>
@@ -212,12 +212,12 @@
                             </a>
                         </li>
                             <li class="nav-item">
-                                <a rel="prev" href="../cli/" class="nav-link">
+                                <a rel="prev" href="../architecture/" class="nav-link">
                                     <i class="fa fa-arrow-left"></i> Previous
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a rel="next" href="../workflows/" class="nav-link">
+                                <a rel="next" href="../extending/" class="nav-link">
                                     Next <i class="fa fa-arrow-right"></i>
                                 </a>
                             </li>
@@ -239,62 +239,122 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
         <ul class="nav flex-column">
             
-            <li class="nav-item" data-bs-level="1"><a href="#gui-mechanics" class="nav-link">GUI Mechanics</a>
+            <li class="nav-item" data-bs-level="1"><a href="#homebackend-rest-api-reference" class="nav-link">HomeBackend REST API Reference</a>
               <ul class="nav flex-column">
-            <li class="nav-item" data-bs-level="2"><a href="#shared-fiona-gui" class="nav-link">Shared Fiona GUI</a>
+            <li class="nav-item" data-bs-level="2"><a href="#devices" class="nav-link">Devices</a>
               <ul class="nav flex-column">
-            <li class="nav-item" data-bs-level="3"><a href="#system-tray" class="nav-link">System Tray</a>
+            <li class="nav-item" data-bs-level="3"><a href="#list-devices" class="nav-link">List Devices</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="3"><a href="#get-device" class="nav-link">Get Device</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="3"><a href="#create-device" class="nav-link">Create Device</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="3"><a href="#update-device" class="nav-link">Update Device</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="3"><a href="#delete-device" class="nav-link">Delete Device</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="3"><a href="#update-device-state" class="nav-link">Update Device State</a>
               <ul class="nav flex-column">
               </ul>
             </li>
               </ul>
             </li>
-            <li class="nav-item" data-bs-level="2"><a href="#camcoms-tab" class="nav-link">CamComs Tab</a>
+            <li class="nav-item" data-bs-level="2"><a href="#rooms" class="nav-link">Rooms</a>
               <ul class="nav flex-column">
-            <li class="nav-item" data-bs-level="3"><a href="#key-management-new" class="nav-link">Key Management (new)</a>
+            <li class="nav-item" data-bs-level="3"><a href="#list-rooms" class="nav-link">List Rooms</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="3"><a href="#get-room" class="nav-link">Get Room</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="3"><a href="#create-room" class="nav-link">Create Room</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="3"><a href="#update-room" class="nav-link">Update Room</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="3"><a href="#delete-room" class="nav-link">Delete Room</a>
               <ul class="nav flex-column">
               </ul>
             </li>
               </ul>
             </li>
-            <li class="nav-item" data-bs-level="2"><a href="#vsee-tab" class="nav-link">Vsee Tab</a>
+            <li class="nav-item" data-bs-level="2"><a href="#scenes" class="nav-link">Scenes</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="3"><a href="#list-scenes" class="nav-link">List Scenes</a>
               <ul class="nav flex-column">
               </ul>
             </li>
-            <li class="nav-item" data-bs-level="2"><a href="#bindings-tab" class="nav-link">Bindings Tab</a>
+            <li class="nav-item" data-bs-level="3"><a href="#get-scene" class="nav-link">Get Scene</a>
               <ul class="nav flex-column">
               </ul>
             </li>
-            <li class="nav-item" data-bs-level="2"><a href="#raw-json-tab" class="nav-link">Raw Json Tab</a>
+            <li class="nav-item" data-bs-level="3"><a href="#create-scene" class="nav-link">Create Scene</a>
               <ul class="nav flex-column">
               </ul>
             </li>
-            <li class="nav-item" data-bs-level="2"><a href="#debug-tab" class="nav-link">Debug Tab</a>
+            <li class="nav-item" data-bs-level="3"><a href="#update-scene" class="nav-link">Update Scene</a>
               <ul class="nav flex-column">
               </ul>
             </li>
-            <li class="nav-item" data-bs-level="2"><a href="#host-tab" class="nav-link">Host Tab</a>
+            <li class="nav-item" data-bs-level="3"><a href="#delete-scene" class="nav-link">Delete Scene</a>
               <ul class="nav flex-column">
               </ul>
             </li>
-            <li class="nav-item" data-bs-level="2"><a href="#pairing-tab-new" class="nav-link">Pairing Tab (new)</a>
+            <li class="nav-item" data-bs-level="3"><a href="#activate-scene" class="nav-link">Activate Scene</a>
               <ul class="nav flex-column">
               </ul>
             </li>
-            <li class="nav-item" data-bs-level="2"><a href="#voice-tab-new" class="nav-link">Voice Tab (new)</a>
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#events" class="nav-link">Events</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="3"><a href="#list-events" class="nav-link">List Events</a>
               <ul class="nav flex-column">
               </ul>
             </li>
-            <li class="nav-item" data-bs-level="2"><a href="#standalone-vsee" class="nav-link">Standalone Vsee</a>
+            <li class="nav-item" data-bs-level="3"><a href="#clear-events" class="nav-link">Clear Events</a>
               <ul class="nav flex-column">
               </ul>
             </li>
-            <li class="nav-item" data-bs-level="2"><a href="#standalone-phiconnect" class="nav-link">Standalone PhiConnect</a>
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#health" class="nav-link">Health</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="3"><a href="#liveness" class="nav-link">Liveness</a>
               <ul class="nav flex-column">
               </ul>
             </li>
-            <li class="nav-item" data-bs-level="2"><a href="#standalone-dataclient" class="nav-link">Standalone DataClient</a>
+            <li class="nav-item" data-bs-level="3"><a href="#readiness" class="nav-link">Readiness</a>
               <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#websocket" class="nav-link">WebSocket</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="3"><a href="#connection" class="nav-link">Connection</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="3"><a href="#message-format-server-client" class="nav-link">Message Format (server → client)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
               </ul>
             </li>
               </ul>
@@ -304,219 +364,201 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
-<h1 id="gui-mechanics">GUI Mechanics</h1>
-<p>Fiona currently has one shared configuration GUI plus three standalone application GUIs.</p>
-<h2 id="shared-fiona-gui">Shared Fiona GUI</h2>
-<p>Open it with:</p>
-<pre><code class="language-bash">fiona edit
+<h1 id="homebackend-rest-api-reference">HomeBackend REST API Reference</h1>
+<p>Base URL: <code>http://localhost:8080</code></p>
+<p>Content-Type: <code>application/json</code></p>
+<p>Error format:</p>
+<pre><code class="language-json">{
+    &quot;error&quot;: &quot;Error message string&quot;
+}
 </code></pre>
-<p>or:</p>
-<pre><code class="language-bash">python3 -m fiona.cli edit
+<hr />
+<h2 id="devices">Devices</h2>
+<h3 id="list-devices">List Devices</h3>
+<pre><code>GET /api/devices
 </code></pre>
-<p>The shared GUI is implemented by <code>QuikTieper.gui.ConfigEditorApp</code>. It is a Tkinter <code>ttk.Notebook</code> application with this tab order:</p>
-<pre><code class="language-text">CamComs -&gt; Vsee -&gt; Bindings -&gt; Raw Json -&gt; Debug -&gt; Host -&gt; Pairing -&gt; Voice
+<p>Query parameters:
+- <code>type</code> — Filter by device type (e.g., <code>light</code>, <code>motion_sensor</code>)
+- <code>room</code> — Filter by room ID</p>
+<p>Response: <code>200</code> — Array of device objects.</p>
+<h3 id="get-device">Get Device</h3>
+<pre><code>GET /api/devices/{device_id}
 </code></pre>
-<p>The footer contains:</p>
-<ul>
-<li>listener status indicator</li>
-<li>current config/status message</li>
-<li><code>Start Listener</code> / stop listener control</li>
-<li><code>Save All</code></li>
-<li><code>Minimize to tray</code> checkbox (when checked, closing hides to tray instead of quitting)</li>
-</ul>
-<h3 id="system-tray">System Tray</h3>
-<p>When <code>Minimize to tray</code> is checked, closing the window hides it to the system tray instead of destroying it. The system tray icon shows a color-coded status indicator:</p>
-<ul>
-<li><strong>Green</strong>: service running and listening</li>
-<li><strong>Yellow</strong>: service running but not listening</li>
-<li><strong>Red</strong>: service not running</li>
-</ul>
-<p>Right-click the tray icon to show or quit Fiona. The tray icon can also be started standalone:</p>
-<pre><code class="language-bash">fiona --tray-only
+<p>Response: <code>200</code> — Device object.
+Error: <code>404</code> — Device not found.</p>
+<h3 id="create-device">Create Device</h3>
+<pre><code>POST /api/devices
 </code></pre>
-<p>The tray state is refreshed every 5 seconds, showing service status, listening state, paired device count, and active macro name.</p>
-<h2 id="camcoms-tab">CamComs Tab</h2>
-<p>Purpose: operate the encryption layer without leaving the GUI.</p>
-<p>Operational areas:</p>
-<ul>
-<li>identity/key generation</li>
-<li>public key export</li>
-<li>plaintext/instruction input</li>
-<li>envelope encryption/decryption</li>
-<li>encoded send helpers</li>
-<li>smoke test output</li>
-</ul>
-<h3 id="key-management-new">Key Management (new)</h3>
-<p>The CamComs tab now includes a <strong>Key Management</strong> section:</p>
-<ul>
-<li><strong>Current Fingerprint</strong>: read-only display of the host identity's public key fingerprint</li>
-<li><strong>Rotate Keys</strong> button: generates a new identity with confirmation dialog</li>
-<li><strong>Prune Expired Trust</strong> button: removes expired trusted sender entries</li>
-<li><strong>Trust Store Location</strong>: read-only path display (<code>~/.config/fiona/trusted/</code>)</li>
-</ul>
-<p>Data flow:</p>
-<pre><code class="language-text">GUI fields -&gt; CamComs identity/public bundle loaders -&gt; encrypt_message/decrypt_text -&gt; output text widget
+<p>Request body:</p>
+<pre><code class="language-json">{
+    &quot;device_id&quot;: &quot;living-room-light&quot;,
+    &quot;name&quot;: &quot;Living Room Light&quot;,
+    &quot;device_type&quot;: &quot;light&quot;,
+    &quot;room&quot;: &quot;living-room&quot;
+}
 </code></pre>
-<p>The smoke-test handler creates in-memory sender/recipient identities, encrypts an <code>alt+s</code> press instruction, decrypts it, and writes the decoded JSON instruction to the output box. It does not require persistent key files.</p>
-<h2 id="vsee-tab">Vsee Tab</h2>
-<p>Purpose: edit and render 3D point/edge wireframes inside the shared GUI.</p>
-<p>The tab holds:</p>
-<ul>
-<li>point table text</li>
-<li>edge table text</li>
-<li>validation/render controls</li>
-<li>canvas projection area</li>
-<li>rotation and scale controls</li>
-</ul>
-<p>Data flow:</p>
-<pre><code class="language-text">points CSV + edges CSV -&gt; HologramModel.from_text -&gt; validation -&gt; projected canvas coordinates -&gt; Tk canvas render
+<p>Response: <code>201</code> — Created device object.
+Error: <code>400</code> — Invalid device type or empty body.</p>
+<h3 id="update-device">Update Device</h3>
+<pre><code>PUT /api/devices/{device_id}
 </code></pre>
-<p>Validation catches duplicate point ids and edges that reference missing points before rendering.</p>
-<h2 id="bindings-tab">Bindings Tab</h2>
-<p>Purpose: manage the QuikTieper binding model.</p>
-<p>Main elements:</p>
-<ul>
-<li>left tree of apps, launch bindings, and shortcuts</li>
-<li>app metadata fields</li>
-<li>binding fields for name, keys, command, instruction, Fiona commands, and cooldown</li>
-<li>add app, add shortcut, delete, save selected</li>
-<li>mouse-position capture helper</li>
-</ul>
-<p>Operational model:</p>
-<pre><code class="language-text">bindings.json -&gt; load_config -&gt; parse tree index -&gt; edit selected item -&gt; save_config
+<p>Request body — partial update:</p>
+<pre><code class="language-json">{
+    &quot;name&quot;: &quot;Updated Name&quot;,
+    &quot;room&quot;: &quot;bedroom&quot;
+}
 </code></pre>
-<p>The listener uses the same config file, so saved GUI changes alter what <code>fiona run</code> will execute.</p>
-<h2 id="raw-json-tab">Raw Json Tab</h2>
-<p>Purpose: expose the underlying QuikTieper JSON config directly.</p>
-<p>Controls:</p>
-<ul>
-<li>reload from disk</li>
-<li>validate JSON</li>
-<li>save through <code>Save All</code></li>
-</ul>
-<p>Use this tab for structural edits that are faster in JSON than in the form editor. Invalid JSON is rejected before save.</p>
-<h2 id="debug-tab">Debug Tab</h2>
-<p>Purpose: project-restricted text/code editor for development.</p>
-<p>Allowed directories:</p>
-<pre><code class="language-text">tests/
-scripts/
-QuikTieper/
-CamComs/
+<p>Response: <code>200</code> — Updated device object.
+Error: <code>404</code> — Device not found.</p>
+<h3 id="delete-device">Delete Device</h3>
+<pre><code>DELETE /api/devices/{device_id}
 </code></pre>
-<p>Skipped directories:</p>
-<pre><code class="language-text">__pycache__/
-.pytest_cache/
+<p>Response: <code>204</code> — No content.
+Error: <code>404</code> — Device not found.</p>
+<h3 id="update-device-state">Update Device State</h3>
+<pre><code>PUT /api/devices/{device_id}/state
 </code></pre>
-<p>Allowed file types include Python, Markdown, JSON, shell scripts, TOML, YAML, HTML, CSS, INI, CFG, TXT, and ESP32 <code>.ino</code> files.</p>
-<p>Security boundary:</p>
-<ul>
-<li>it does not expose the whole filesystem</li>
-<li>it does not expose every project directory</li>
-<li>it validates resolved paths before saving</li>
-<li>it rejects files outside the configured debug roots</li>
-</ul>
-<h2 id="host-tab">Host Tab</h2>
-<p>Purpose: inspect and operate host-service state from the GUI.</p>
-<p>Typical capabilities:</p>
-<ul>
-<li>initialize config</li>
-<li>show host status</li>
-<li>inspect key/trust paths</li>
-<li>list/remove trusted sender keys</li>
-<li>inspect audit log</li>
-<li>expose host receiver configuration</li>
-<li><strong>live systemd service state</strong> (color-coded status dot, 3s polling)</li>
-<li><strong>Start/Stop/Restart/Journal</strong> buttons (invoke <code>systemctl --user</code>)</li>
-<li><strong>scrollable journalctl output</strong> display</li>
-<li><strong>SeeOnDesk info panel</strong>: current workspace name, top processes, refresh button</li>
-</ul>
-<p>Operational model:</p>
-<pre><code class="language-text">Host tab action -&gt; HostService/load config/AuditLog/trust helpers -&gt; rendered status/log text
+<p>Request body:</p>
+<pre><code class="language-json">{
+    &quot;power&quot;: true,
+    &quot;brightness&quot;: 80
+}
 </code></pre>
-<h2 id="pairing-tab-new">Pairing Tab (new)</h2>
-<p>Purpose: pair ESP32 and other devices with Fiona using the pairing protocol.</p>
-<p><strong>Device Pairing</strong> section:</p>
-<ul>
-<li><strong>Listen for Pairing Requests</strong> toggle: starts/stops the pairing HTTP server on port 8090</li>
-<li>Status label showing "Listening" or "Stopped"</li>
-</ul>
-<p><strong>Pending Requests</strong> section:</p>
-<ul>
-<li>Treeview: Device ID, Fingerprint, Received At, Expires In</li>
-<li><strong>Approve</strong> / <strong>Deny</strong> buttons</li>
-<li>Expires in (days) spinbox (default 30, 0 = no expiry)</li>
-<li>Polls every 2 seconds</li>
-</ul>
-<p><strong>Trusted Devices</strong> section:</p>
-<ul>
-<li>Treeview: Device ID, Fingerprint, Added At, Expires, Status</li>
-<li>Status shows "OK (expires in N days)", "EXPIRED" (red), or "Never"</li>
-<li><strong>Remove</strong> button with confirmation dialog</li>
-<li><strong>Refresh</strong> button</li>
-<li>Auto-poll every 10 seconds</li>
-</ul>
-<h2 id="voice-tab-new">Voice Tab (new)</h2>
-<p>Purpose: control voice features from the GUI.</p>
-<p><strong>Voice Control</strong> section:</p>
-<ul>
-<li>Wake word engine status (Available / Unavailable)</li>
-<li>Start/Stop listening toggle</li>
-<li>Wake word text entry (default "fiona")</li>
-<li>Manual trigger button ("Hey Fiona")</li>
-</ul>
-<p><strong>Feedback</strong> section:</p>
-<ul>
-<li>Test sound buttons (Ack, Error, Success)</li>
-<li>Test Notification button</li>
-<li>Urgency selector (low / normal / critical)</li>
-</ul>
-<p><strong>Push to Talk</strong> section:</p>
-<ul>
-<li>Status indicator (Available / Unavailable)</li>
-<li>Hotkey display (Ctrl+Space)</li>
-<li>Start/Stop listener toggle</li>
-</ul>
-<h2 id="standalone-vsee">Standalone Vsee</h2>
-<p>Open:</p>
-<pre><code class="language-bash">fiona vsee
+<p>Response: <code>200</code> — Updated device object with new state.</p>
+<hr />
+<h2 id="rooms">Rooms</h2>
+<h3 id="list-rooms">List Rooms</h3>
+<pre><code>GET /api/rooms
 </code></pre>
-<p>The standalone Vsee window focuses only on holography data and rendering. It accepts optional <code>--points</code> and <code>--edges</code> files from the CLI and does not include the QuikTieper/CamComs configuration surface.</p>
-<h2 id="standalone-phiconnect">Standalone PhiConnect</h2>
-<p>Open:</p>
-<pre><code class="language-bash">fiona phiconnect
+<p>Response: <code>200</code> — Array of room objects.</p>
+<h3 id="get-room">Get Room</h3>
+<pre><code>GET /api/rooms/{room_id}
 </code></pre>
-<p>PhiConnect is an encrypted chat application.</p>
-<p>GUI mechanics:</p>
-<ul>
-<li>ensures a local identity exists</li>
-<li>shows local public key for sharing</li>
-<li>accepts/trusts a peer public key</li>
-<li>starts a local receiver on host/port</li>
-<li>encrypts outgoing chat with the peer public key</li>
-<li>decrypts incoming chat with the local private key</li>
-<li>shows recent chat messages from a rolling 3-minute window</li>
-</ul>
-<p>Local test path:</p>
-<pre><code class="language-text">Use Local Public Key -&gt; Start Receiver -&gt; send to 127.0.0.1:5000
+<p>Includes an array of devices belonging to the room.</p>
+<p>Response: <code>200</code> — Room object with <code>devices</code> array.
+Error: <code>404</code> — Room not found.</p>
+<h3 id="create-room">Create Room</h3>
+<pre><code>POST /api/rooms
 </code></pre>
-<p>The PhiConnect GUI now includes trust expiry checking and an optional Agent bridge checkbox for forwarding chat messages to the local Ollama agent.</p>
-<h2 id="standalone-dataclient">Standalone DataClient</h2>
-<p>Open:</p>
-<pre><code class="language-bash">fiona dataclient
+<p>Request body:</p>
+<pre><code class="language-json">{
+    &quot;room_id&quot;: &quot;living-room&quot;,
+    &quot;name&quot;: &quot;Living Room&quot;
+}
 </code></pre>
-<p>GUI areas:</p>
-<ul>
-<li>Research tab for quick and deep mining</li>
-<li>MiniExcel tab for CSV/JSON/SQLite table viewing/editing</li>
-<li>Miner menu for quick access to mining actions</li>
-</ul>
-<p>Research flow:</p>
-<pre><code class="language-text">topic -&gt; search -&gt; scrape pages -&gt; summarize text -&gt; row model -&gt; CSV export
+<p>Response: <code>201</code> — Created room object.
+Error: <code>400</code> — Empty body.</p>
+<h3 id="update-room">Update Room</h3>
+<pre><code>PUT /api/rooms/{room_id}
 </code></pre>
-<p>MiniExcel flow:</p>
-<pre><code class="language-text">table file -&gt; load_table -&gt; grid rows/columns -&gt; edit/formula/export -&gt; save converted table
+<p>Request body — partial update:</p>
+<pre><code class="language-json">{
+    &quot;name&quot;: &quot;Updated Name&quot;
+}
 </code></pre>
-<p>The formula bar evaluates only a safe expression subset: cell references, ranges, arithmetic, and a controlled function list.</p></div>
+<p>Response: <code>200</code> — Updated room object.
+Error: <code>404</code> — Room not found.</p>
+<h3 id="delete-room">Delete Room</h3>
+<pre><code>DELETE /api/rooms/{room_id}
+</code></pre>
+<p>Response: <code>204</code> — No content.
+Error: <code>404</code> — Room not found.</p>
+<hr />
+<h2 id="scenes">Scenes</h2>
+<h3 id="list-scenes">List Scenes</h3>
+<pre><code>GET /api/scenes
+</code></pre>
+<p>Response: <code>200</code> — Array of scene objects.</p>
+<h3 id="get-scene">Get Scene</h3>
+<pre><code>GET /api/scenes/{scene_id}
+</code></pre>
+<p>Response: <code>200</code> — Scene object.
+Error: <code>404</code> — Scene not found.</p>
+<h3 id="create-scene">Create Scene</h3>
+<pre><code>POST /api/scenes
+</code></pre>
+<p>Request body:</p>
+<pre><code class="language-json">{
+    &quot;scene_id&quot;: &quot;good-night&quot;,
+    &quot;name&quot;: &quot;Good Night&quot;,
+    &quot;states&quot;: {
+        &quot;living-room-light&quot;: {&quot;power&quot;: false},
+        &quot;bedroom-light&quot;: {&quot;power&quot;: false}
+    }
+}
+</code></pre>
+<p>Response: <code>201</code> — Created scene object.
+Error: <code>400</code> — Empty body.</p>
+<h3 id="update-scene">Update Scene</h3>
+<pre><code>PUT /api/scenes/{scene_id}
+</code></pre>
+<p>Request body — partial update.</p>
+<p>Response: <code>200</code> — Updated scene object.
+Error: <code>404</code> — Scene not found.</p>
+<h3 id="delete-scene">Delete Scene</h3>
+<pre><code>DELETE /api/scenes/{scene_id}
+</code></pre>
+<p>Response: <code>204</code> — No content.
+Error: <code>404</code> — Scene not found.</p>
+<h3 id="activate-scene">Activate Scene</h3>
+<pre><code>POST /api/scenes/{scene_id}/activate
+</code></pre>
+<p>Applies all device states defined in the scene.</p>
+<p>Response: <code>200</code> — Activation confirmation.
+Error: <code>404</code> — Scene not found.</p>
+<hr />
+<h2 id="events">Events</h2>
+<h3 id="list-events">List Events</h3>
+<pre><code>GET /api/events
+</code></pre>
+<p>Query parameters:
+- <code>device_id</code> — Filter by device
+- <code>event_type</code> — Filter by event type (e.g., <code>state_changed</code>)
+- <code>limit</code> — Max results (default 100)
+- <code>offset</code> — Pagination offset</p>
+<p>Response: <code>200</code> — Array of event objects.</p>
+<h3 id="clear-events">Clear Events</h3>
+<pre><code>DELETE /api/events
+</code></pre>
+<p>Response: <code>204</code> — No content.</p>
+<hr />
+<h2 id="health">Health</h2>
+<h3 id="liveness">Liveness</h3>
+<pre><code>GET /api/health
+</code></pre>
+<p>Response: <code>200</code></p>
+<pre><code class="language-json">{
+    &quot;status&quot;: &quot;healthy&quot;
+}
+</code></pre>
+<h3 id="readiness">Readiness</h3>
+<pre><code>GET /api/ready
+</code></pre>
+<p>Checks that the database is accessible.</p>
+<p>Response: <code>200</code></p>
+<pre><code class="language-json">{
+    &quot;status&quot;: &quot;ready&quot;
+}
+</code></pre>
+<p>Error: <code>503</code> — Database unavailable.</p>
+<hr />
+<h2 id="websocket">WebSocket</h2>
+<h3 id="connection">Connection</h3>
+<pre><code>ws://localhost:8080/ws
+</code></pre>
+<h3 id="message-format-server-client">Message Format (server → client)</h3>
+<pre><code class="language-json">{
+    &quot;type&quot;: &quot;event&quot;,
+    &quot;data&quot;: {
+        &quot;device_id&quot;: &quot;hallway-motion&quot;,
+        &quot;event_type&quot;: &quot;state_changed&quot;,
+        &quot;data&quot;: {
+            &quot;motion_detected&quot;: true
+        },
+        &quot;timestamp&quot;: &quot;2026-07-03T12:00:00Z&quot;
+    }
+}
+</code></pre></div>
             </div>
         </div>
 
