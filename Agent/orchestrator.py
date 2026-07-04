@@ -33,13 +33,23 @@ class AgentOrchestrator:
     """
     def __init__(self, client: OllamaClient | None = None,
                  approval_manager: ApprovalManager | None = None,
-                 personality_name: str | None = None):
+                 personality_name: str | None = None,
+                 action_registry: Any | None = None):
         self.client = client or OllamaClient()
         self.router = ActionRouter()
         self.history: List[AgentTurn] = []
         self.max_turns = 10
         self.approval_manager = approval_manager or get_approval_manager()
         self._personality_name = personality_name  # None = use hardcoded prompt
+        # Lazy import to keep the Agent package decoupled from fiona.actions
+        if action_registry is not None:
+            self._action_registry = action_registry
+        else:
+            try:
+                from fiona.actions import ActionRegistry
+                self._action_registry = ActionRegistry()
+            except ImportError:
+                self._action_registry = None
 
     def run_goal(self, goal: str) -> str:
         """Attempt to achieve a user goal through human-approved actions."""
@@ -297,6 +307,12 @@ If the goal is achieved, set "action" to null.
     def _execute_action(self, name: str, params: dict[str, Any]) -> str:
         try:
             logger.info(f"Executing action: {name} with params: {params}")
+            
+            # --- NEW: Check the action registry first ---
+            if self._action_registry is not None:
+                handler = self._action_registry.lookup(name)
+                if handler is not None:
+                    return handler.execute(params)
             
             # 1. Awareness Tools
             if name == "seeondesk_list":

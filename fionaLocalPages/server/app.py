@@ -54,6 +54,7 @@ from fionaLocalPages.server.handlers import (
     actions,
     agent,
     agents_crud,
+    apicatalog,
     bindings,
     browser,
     calendar,
@@ -386,12 +387,19 @@ def _setup_api_routes(app: web.Application) -> None:
     app.router.add_get("/api/v1/calendar/reminders/due", calendar.get_due_reminders)
     app.router.add_post("/api/v1/calendar/reminders/{id}/mark-fired", calendar.mark_reminder_fired)
 
+    # ── API Catalog ───────────────────────────────────────────────────
+    app.router.add_get("/api/v1/apicatalog/search", apicatalog.handle_search)
+    app.router.add_get("/api/v1/apicatalog/info", apicatalog.handle_info)
+    app.router.add_get("/api/v1/apicatalog/categories", apicatalog.handle_categories)
+    app.router.add_post("/api/v1/apicatalog/refresh", apicatalog.handle_refresh)
+    app.router.add_get("/api/v1/apicatalog/status", apicatalog.handle_status)
+
 
 def _setup_websocket(app: web.Application) -> None:
     """Register the WebSocket endpoint at /ws."""
 
     async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
-        ws = web.WebSocketResponse(max_msg_size=1024 * 1024)
+        ws = web.WebSocketResponse(max_msg_size=1024 * 1024, heartbeat=30.0)
         await ws.prepare(request)
 
         peer_id = await ws_manager.register(ws)

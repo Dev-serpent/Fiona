@@ -89,6 +89,7 @@ const DEFAULT_SECTIONS = [
     collapsible: true,
     defaultCollapsed: true,
     items: [
+      { id: 'apicatalog', label: 'API Catalog', icon: 'globe', path: '/apicatalog' },
       { id: 'macros', label: 'Macros', icon: 'play', path: '/macros' },
       { id: 'camcoms', label: 'CamComs', icon: 'wifi', path: '/camcoms' },
       { id: 'desktop', label: 'SeeOnDesk', icon: 'maximize', path: '/desktop' },

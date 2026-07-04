@@ -1,0 +1,73 @@
+<!-- apicatalog.html — API Catalog Page Template -->
+<style>
+  .api-result-row:hover {
+    background: var(--bg-tertiary);
+  }
+  .api-score {
+    font-variant-numeric: tabular-nums;
+  }
+  .api-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: var(--space-3);
+  }
+</style>
+
+<!-- Page Header -->
+<div style="margin-bottom: var(--space-5);">
+  <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3);">
+    <div>
+      <h1 style="font-size: var(--font-size-xxl); font-weight: var(--font-weight-bold); color: var(--text-primary); margin: 0;">
+        API Catalog
+      </h1>
+      <p style="font-size: var(--font-size-sm); color: var(--text-muted); margin: 2px 0 0 0;">
+        {{entryCount}} public APIs indexed · last refreshed {{lastRefreshed}}
+      </p>
+    </div>
+    <div style="display: flex; align-items: center; gap: var(--space-3);">
+      <button class="c-btn c-btn--sm c-btn--ghost" id="apicat-refresh" title="Force re-pull of the public-apis repo">
+        <span class="c-btn__icon">{{{refreshIcon}}}</span>
+        Refresh
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Search & Filter Bar -->
+<div style="display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-4); flex-wrap: wrap;">
+  <!-- Search input -->
+  <div class="c-input-wrapper" style="flex: 1; min-width: 220px; max-width: 400px;">
+    <span class="c-input-wrapper__icon c-input-wrapper__icon--left">{{{searchIcon}}}</span>
+    <input type="text" class="c-input c-input--sm" id="apicat-search"
+           placeholder="Search APIs (e.g. weather, finance, cats…)"
+           value="{{searchQuery}}"
+           style="padding-left: 32px; font-size: var(--font-size-xs);">
+  </div>
+  <!-- Category filter -->
+  <select class="c-input c-input--sm" id="apicat-category"
+          style="font-size: var(--font-size-xs); max-width: 200px;">
+    <option value="">All categories</option>
+    {{{categoryOptions}}}
+  </select>
+  <!-- Top K -->
+  <label style="font-size: var(--font-size-xs); color: var(--text-muted); display: flex; align-items: center; gap: 4px;">
+    Max:
+    <select class="c-input c-input--sm" id="apicat-topk" style="width: 70px; font-size: var(--font-size-xs);">
+      <option value="5">5</option>
+      <option value="10" selected>10</option>
+      <option value="25">25</option>
+      <option value="50">50</option>
+    </select>
+  </label>
+  <span style="font-size: var(--font-size-xs); color: var(--text-muted);">
+    {{resultCount}} results
+  </span>
+</div>
+
+<!-- Results Grid / Empty State -->
+<div id="apicat-results">
+  {{{resultsHtml}}}
+</div>
+
+<!-- Detail Modal -->
+{{{detailModal}}}

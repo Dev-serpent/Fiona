@@ -158,6 +158,13 @@ const routes = [
     icon: 'bot',
   },
   {
+    path: '/apicatalog',
+    name: 'apicatalog',
+    component: () => import('../pages/apicatalog.js'),
+    title: 'API Catalog',
+    icon: 'globe',
+  },
+  {
     path: '/actions',
     name: 'actions',
     component: () => import('../pages/actions.js'),
