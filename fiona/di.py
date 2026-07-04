@@ -310,6 +310,182 @@ def register_sci_retrieval(container: FionaContainer) -> None:
     )
 
 
+def register_plugin_manager(
+    container: FionaContainer,
+    search_paths: list[str] | None = None,
+    scan_agents: bool = True,
+) -> None:
+    """Register a configured ``PluginManager`` in the DI container.
+
+    The plugin manager is created lazily on first access, discovers
+    plugins from *search_paths*, optionally scans builtin agent files,
+    and attaches the container's event bus for event handler registration.
+
+    Args:
+        container: A ``FionaContainer`` instance.
+        search_paths: Directories to search for plugin metadata files.
+            Defaults to ``["fiona_plugins"]`` relative to the project root.
+        scan_agents: If ``True`` (default), also scan the ``agents/``
+            directory for Markdown-based agent definitions.
+    """
+    def _factory() -> Any:
+        from pathlib import Path
+
+        from fiona.plugin_system import PluginManager
+
+        paths = list(search_paths) if search_paths else []
+        if not paths:
+            base = Path(__file__).resolve().parent.parent
+            plugins_dir = str(base / "fiona_plugins")
+            if Path(plugins_dir).is_dir():
+                paths.append(plugins_dir)
+
+        manager = PluginManager(search_paths=paths)
+
+        # Attach event bus if registered
+        try:
+            bus = container.resolve("event_bus")
+            manager.set_event_bus(bus)
+        except KeyError:
+            pass
+
+        # Discover plugin manifests
+        manager.discover()
+
+        # Scan builtin agent files
+        if scan_agents:
+            try:
+                manager.scan_agents()
+            except ImportError:
+                pass  # Agent package not available — skip
+
+        return manager
+
+    container.register_factory("plugin.manager", _factory)
+
+
+def register_agent_manager(
+    container: FionaContainer,
+    agent_dirs: list[str] | None = None,
+) -> None:
+    """Register an ``AgentManager`` in the DI container.
+
+    The agent manager is created lazily on first access, wiring together
+    the ``PersonalityRegistry`` singleton and the ``PluginManager``
+    (if registered), and attaching the event bus.
+
+    Args:
+        container: A ``FionaContainer`` instance.
+        agent_dirs: Directories to scan for agent ``.md`` files.
+            Defaults to the project ``agents/`` directory.
+    """
+    def _factory() -> Any:
+        from Agent.agent_manager import AgentManager
+        from Agent.personality import PersonalityRegistry
+
+        registry = PersonalityRegistry.get_instance()
+        try:
+            plugin_manager = container.resolve("plugin.manager")
+        except KeyError:
+            plugin_manager = None
+
+        manager = AgentManager(
+            registry=registry,
+            plugin_manager=plugin_manager,
+            agent_dirs=agent_dirs,
+        )
+
+        # Attach event bus if registered
+        try:
+            bus = container.resolve("event_bus")
+            manager.set_event_bus(bus)
+        except KeyError:
+            pass
+
+        return manager
+
+    container.register_factory("agent.manager", _factory)
+
+
+def register_coordinator(
+    container: FionaContainer,
+    *,
+    max_turns: int = 10,
+    default_agent: str = "general",
+) -> None:
+    """Register a ``Coordinator`` in the DI container.
+
+    The coordinator is created lazily on first access, wiring the
+    ``PersonalityRegistry``, ``OllamaClient``, default ``AgentRouter``,
+    and event bus (if registered).
+
+    Args:
+        container: A ``FionaContainer`` instance.
+        max_turns: Maximum ReAct turns per agent execution.
+        default_agent: Fallback agent name when routing produces no
+            confident match.
+    """
+    def _factory() -> Any:
+        from Agent.coordinator import AgentRouter, Coordinator
+        from Agent.ollama import OllamaClient
+        from Agent.personality import PersonalityRegistry
+
+        registry = PersonalityRegistry.get_instance()
+
+        # Resolve client (must be registered separately)
+        try:
+            client = container.resolve("llm.client")
+        except KeyError:
+            client = OllamaClient()
+
+        router = AgentRouter(registry=registry, client=client)
+        coordinator = Coordinator(
+            client=client,
+            registry=registry,
+            router=router,
+            max_turns=max_turns,
+            default_agent=default_agent,
+        )
+
+        # Attach event bus if registered
+        try:
+            bus = container.resolve("event_bus")
+            coordinator.set_event_bus(bus)
+        except KeyError:
+            pass
+
+        return coordinator
+
+    container.register_factory("coordinator", _factory)
+
+
+def register_event_bus(container: FionaContainer) -> None:
+    """Register an ``EventBus`` singleton in the DI container.
+
+    Args:
+        container: A ``FionaContainer`` instance.
+    """
+    from fiona.interfaces import EventBus
+
+    container.register_instance("event_bus", EventBus())
+
+
+def register_agent_config(container: FionaContainer) -> None:
+    """Register the Agent configuration in the DI container.
+
+    The config is loaded lazily on first access, then cached.
+
+    Args:
+        container: A FionaContainer instance.
+    """
+    def _load() -> Any:
+        from Agent.config import load_agent_config
+
+        return load_agent_config()
+
+    container.register_factory("agent.config", _load)
+
+
 def register_tool_runtime(container: FionaContainer) -> None:
     """Register the ToolRuntime in the DI container.
 

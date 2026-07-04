@@ -1,0 +1,18 @@
+name: code-analysis
+description: Read, analyse, and summarise source code files
+version: "1.0.0"
+tools:
+  - read_file
+  - grep_search
+  - glob_search
+instruction: |
+  Use read_file to examine source code, grep_search to find patterns,
+  and glob_search to locate relevant files. Provide a clear analysis
+  of code structure, potential issues, and improvement suggestions.
+tags:
+  - code
+  - analysis
+  - development
+metadata:
+  category: development
+  requires_network: false

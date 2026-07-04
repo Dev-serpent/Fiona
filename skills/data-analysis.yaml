@@ -1,0 +1,17 @@
+name: data-analysis
+description: Process, analyse, and visualise structured data
+version: "1.0.0"
+tools:
+  - execute_python
+  - read_file
+  - write_file
+instruction: |
+  Use Python tools to load data, perform statistical analysis, create
+  visualisations, and report findings. Always explain your methodology.
+tags:
+  - data
+  - analysis
+  - statistics
+metadata:
+  category: analysis
+  requires_network: false

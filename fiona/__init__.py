@@ -51,6 +51,13 @@ from QuikTieper import AppLauncher, Binding
 from fiona.di import FionaContainer
 from fiona.logging import FionaLogger, get_logger
 from fiona.metrics import MetricsRegistry, metrics
+from fiona.plugin_system import (
+    FionaPlugin,
+    PluginError,
+    PluginManager,
+    PluginManifest,
+    PluginType,
+)
 from fiona.tracing import Tracer, tracer
 
 sys.modules.setdefault(__name__ + ".CamComs", CamComs)
@@ -89,8 +96,13 @@ __all__ = [
     "FionaContainer",
     "FionaCore",
     "FionaLogger",
+    "FionaPlugin",
     "MetricsRegistry",
     "PhiConnect",
+    "PluginError",
+    "PluginManager",
+    "PluginManifest",
+    "PluginType",
     "SeeOnDesk",
     "TerminalAssist",
     "ChordListener",

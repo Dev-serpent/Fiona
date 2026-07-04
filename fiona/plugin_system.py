@@ -33,6 +33,26 @@ except ImportError:  # pragma: no cover
     _HAS_YAML = False
 
 # ---------------------------------------------------------------------------
+# Enums
+# ---------------------------------------------------------------------------
+
+
+class PluginType:
+    """Registered component types a plugin may expose.
+
+    These constants are used in ``PluginManifest.components`` to declare
+    what the plugin contributes to the system.
+    """
+
+    AGENT = "agent"
+    TOOL = "tool"
+    SKILL = "skill"
+    EVENT_HANDLER = "event_handler"
+    COMMAND = "command"
+    MEMORY_PROVIDER = "memory_provider"
+
+
+# ---------------------------------------------------------------------------
 # Data types
 # ---------------------------------------------------------------------------
 
@@ -49,6 +69,10 @@ class PluginManifest:
         entry_point: Dotted module path that the ``PluginManager``
             will import to obtain the plugin class (e.g.
             ``"fiona_plugins.stl_export"``).
+        plugin_type: Primary type of plugin (from ``PluginType``).
+        components: List of ``PluginType`` values describing what this
+            plugin provides (agents, tools, skills, etc.).
+        dependencies: Names of other plugins this plugin depends on.
     """
 
     name: str
@@ -56,6 +80,9 @@ class PluginManifest:
     description: str = ""
     author: str = ""
     entry_point: str = ""
+    plugin_type: str = ""
+    components: tuple[str, ...] = ()
+    dependencies: tuple[str, ...] = ()
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> PluginManifest:
@@ -73,12 +100,32 @@ class PluginManifest:
         name = data.get("name")
         if not name:
             raise ValueError("Plugin manifest is missing required field: 'name'")
+        # Normalise components list
+        raw_components = data.get("components") or data.get("plugin_type", "")
+        if isinstance(raw_components, str):
+            components = (raw_components,) if raw_components else ()
+        elif isinstance(raw_components, (list, tuple)):
+            components = tuple(str(c) for c in raw_components)
+        else:
+            components = ()
+
+        raw_deps = data.get("dependencies", [])
+        if isinstance(raw_deps, str):
+            dependencies = (raw_deps,)
+        elif isinstance(raw_deps, (list, tuple)):
+            dependencies = tuple(str(d) for d in raw_deps)
+        else:
+            dependencies = ()
+
         return cls(
             name=str(name),
             version=str(data.get("version", "0.1.0")),
             description=str(data.get("description", "")),
             author=str(data.get("author", "")),
             entry_point=str(data.get("entry_point", "")),
+            plugin_type=str(data.get("plugin_type", "")),
+            components=components,
+            dependencies=dependencies,
         )
 
 
@@ -103,11 +150,15 @@ class FionaPlugin(ABC):
         """Register services, commands, and providers with the system.
 
         Called once after the plugin is loaded.  Implementations should
-        use the *container* (a ``fiona.di.FionaContainer`` or compatible
-        object) to register any new services or extensions.
+        use the *container* (a ``PluginManager`` instance, which also
+        exposes ``register_agent()``, ``register_tool()``,
+        ``register_skill()``, ``register_event_handler()``, and
+        ``register_command()`` methods) to register any new services,
+        commands, or component types.
 
         Args:
-            container: The dependency injection container.
+            container: The ``PluginManager`` instance (acts as a
+                lightweight DI container for plugin components).
         """
 
     @abstractmethod
@@ -372,6 +423,201 @@ class PluginManager:
             ) from exc
 
     # ------------------------------------------------------------------
+    # Registration API (called by plugins during activate())
+    # ------------------------------------------------------------------
+
+    def register_agent(self, name: str, agent_meta: Any) -> None:
+        """Register an agent component.
+
+        Args:
+            name: Unique agent identifier.
+            agent_meta: An ``AgentMeta`` instance (or compatible duck-type
+                with ``name``, ``role``, ``persona`` attributes).
+
+        Raises:
+            ValueError: If an agent with *name* is already registered.
+        """
+        registered: dict[str, Any] = self._get_registry("agents")
+        if name in registered:
+            raise ValueError(f"Agent already registered: {name!r}")
+        registered[name] = agent_meta
+
+    def register_tool(self, name: str, tool_fn: Any) -> None:
+        """Register a tool function.
+
+        Args:
+            name: Unique tool identifier.
+            tool_fn: A callable that implements the tool.
+
+        Raises:
+            ValueError: If a tool with *name* is already registered.
+        """
+        registered: dict[str, Any] = self._get_registry("tools")
+        if name in registered:
+            raise ValueError(f"Tool already registered: {name!r}")
+        registered[name] = tool_fn
+
+    def register_skill(self, name: str, skill: Any) -> None:
+        """Register a reusable skill.
+
+        Args:
+            name: Unique skill identifier.
+            skill: A skill object (e.g. a ``Skill`` instance or callable).
+
+        Raises:
+            ValueError: If a skill with *name* is already registered.
+        """
+        registered: dict[str, Any] = self._get_registry("skills")
+        if name in registered:
+            raise ValueError(f"Skill already registered: {name!r}")
+        registered[name] = skill
+
+    def register_event_handler(
+        self, event_type: type, callback: Any
+    ) -> None:
+        """Register an event handler subscription.
+
+        Args:
+            event_type: The event class to subscribe to.
+            callback: A callable that accepts a single event argument.
+        """
+        # Delegate to EventBus if one is available
+        bus = getattr(self, "_event_bus", None)
+        if bus is not None and hasattr(bus, "subscribe"):
+            bus.subscribe(event_type, callback)
+
+    def register_command(self, name: str, command_fn: Any) -> None:
+        """Register a CLI or internal command.
+
+        Args:
+            name: Command name (e.g. ``"plugin_list"``).
+            command_fn: A callable that implements the command.
+
+        Raises:
+            ValueError: If a command with *name* is already registered.
+        """
+        registered: dict[str, Any] = self._get_registry("commands")
+        if name in registered:
+            raise ValueError(f"Command already registered: {name!r}")
+        registered[name] = command_fn
+
+    def unregister_agent(self, name: str) -> bool:
+        """Remove a previously registered agent.
+
+        Args:
+            name: Agent name to unregister.
+
+        Returns:
+            ``True`` if the agent was found and removed.
+        """
+        registered = self._get_registry("agents")
+        return registered.pop(name, None) is not None
+
+    def get_registered_agents(
+        self,
+    ) -> dict[str, Any]:
+        """Return all registered agents keyed by name."""
+        return dict(self._get_registry("agents"))
+
+    def get_registered_tools(self) -> dict[str, Any]:
+        """Return all registered tools keyed by name."""
+        return dict(self._get_registry("tools"))
+
+    def get_registered_skills(self) -> dict[str, Any]:
+        """Return all registered skills keyed by name."""
+        return dict(self._get_registry("skills"))
+
+    def get_registered_commands(self) -> dict[str, Any]:
+        """Return all registered commands keyed by name."""
+        return dict(self._get_registry("commands"))
+
+    def set_event_bus(self, bus: Any) -> None:
+        """Attach an EventBus instance for event handler subscriptions.
+
+        Args:
+            bus: An ``EventBus``-compatible object.
+        """
+        self._event_bus = bus
+
+    # ------------------------------------------------------------------
+    # Internal registry helpers
+    # ------------------------------------------------------------------
+
+    _registries: dict[str, dict[str, Any]] = {}
+
+    def _get_registry(self, registry_name: str) -> dict[str, Any]:
+        """Return (creating if needed) a named component registry.
+
+        Registers are instance-level dictionaries stored in
+        ``_instance_registries`` (not the class-level ``_registries``)
+        to avoid accidental sharing between ``PluginManager`` instances.
+        """
+        # Use an instance-specific dict so multiple PluginManager
+        # instances don't share registries.
+        try:
+            rd = self.__dict__["_instance_registries"]
+        except KeyError:
+            rd = {}
+            self.__dict__["_instance_registries"] = rd
+        if registry_name not in rd:
+            rd[registry_name] = {}
+        return rd[registry_name]
+
+    # ------------------------------------------------------------------
+    # Agent discovery from Markdown agent files
+    # ------------------------------------------------------------------
+
+    def scan_agents(
+        self,
+        agent_dirs: list[str] | None = None,
+    ) -> int:
+        """Scan directories for Markdown agent files and register them.
+
+        For each ``.md`` file with a valid YAML front matter, the method
+        creates an ``AgentMeta`` wrapper and calls ``register_agent()``.
+
+        Args:
+            agent_dirs: List of directory paths to scan.  If ``None``,
+                defaults to the project ``agents/`` directory.
+
+        Returns:
+            The number of agents registered.
+
+        Raises:
+            ImportError: If the ``Agent`` package is not available.
+        """
+        try:
+            from Agent.agent_loader import parse_agent_file
+        except ImportError as exc:
+            raise ImportError(
+                "Agent package required for scan_agents(): "
+                "pip install fiona[agents]"
+            ) from exc
+
+        if agent_dirs is None:
+            base = Path(__file__).resolve().parent.parent  # project root
+            agent_dirs = [str(base / "agents")]
+
+        count = 0
+        for agent_dir in agent_dirs:
+            path = Path(agent_dir).expanduser().resolve()
+            if not path.is_dir():
+                continue
+            # Scan recursively (agents may be nested in subdirs like builtins/)
+            for entry in sorted(path.rglob("*.md")):
+                # Skip README files which are documentation, not agents
+                if entry.name.upper() == "README.md":
+                    continue
+                meta = parse_agent_file(str(entry))
+                if meta is not None:
+                    try:
+                        self.register_agent(meta.name, meta)
+                        count += 1
+                    except ValueError:
+                        pass  # duplicate — skip silently
+        return count
+
+    # ------------------------------------------------------------------
     # Queries
     # ------------------------------------------------------------------
 
@@ -386,9 +632,31 @@ class PluginManager:
         """
         return self.active_plugins.get(name)
 
+    def find_by_component(
+        self,
+        component_type: str,
+    ) -> list[PluginManifest]:
+        """Return manifests for plugins that declare a given component type.
+
+        Args:
+            component_type: A value from ``PluginType`` (e.g. ``"agent"``).
+
+        Returns:
+            List of matching ``PluginManifest`` instances.
+        """
+        return [
+            m
+            for m in self.manifests.values()
+            if component_type in m.components or m.plugin_type == component_type
+        ]
+
     def __repr__(self) -> str:
+        agents = sum(
+            1 for _ in self._get_registry("agents").values()
+        )
         return (
             f"PluginManager("
             f"{len(self.manifests)} manifests, "
-            f"{len(self.active_plugins)} active)"
+            f"{len(self.active_plugins)} active, "
+            f"{agents} agents)"
         )

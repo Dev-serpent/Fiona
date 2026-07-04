@@ -235,3 +235,77 @@ class TestTopologyBuilder:
                     payload={"node_id": "n1", "status": "started"},
                 )
                 await builder.start_node("n1")  # should not raise
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# Real-server integration tests
+# ═══════════════════════════════════════════════════════════════════════
+
+
+@pytest.mark.asyncio
+class TestTopologyBuilderReal:
+    """Topology builder tests against a real GNS3 server."""
+
+    async def test_add_and_remove_node_real(
+        self, gns3_client: GNS3Client, test_project: tuple,
+    ) -> None:
+        """Add a Docker node, verify it, then remove it."""
+        project, _ = test_project
+        builder = TopologyBuilder(gns3_client, project.project_id)
+
+        node = await builder.add_node(
+            "test-real-node",
+            node_type="docker",
+            properties={"image": "alpine:latest"},
+        )
+        assert node.node_id
+        assert node.name == "test-real-node"
+        assert node.status == "stopped"
+
+        # Verify it appears in the node list
+        nodes = await builder.list_nodes()
+        node_ids = {n.node_id for n in nodes}
+        assert node.node_id in node_ids
+
+        # Remove it
+        removed = await builder.remove_node(node.node_id)
+        assert removed is True
+
+        # Verify it's gone
+        nodes = await builder.list_nodes()
+        node_ids = {n.node_id for n in nodes}
+        assert node.node_id not in node_ids
+
+    async def test_add_link_between_nodes_real(
+        self, gns3_client: GNS3Client, test_project: tuple,
+    ) -> None:
+        """Create two nodes, link them, verify link exists."""
+        project, _ = test_project
+        builder = TopologyBuilder(gns3_client, project.project_id)
+
+        node_a = await builder.add_node(
+            "link-node-a",
+            node_type="docker",
+            properties={"image": "alpine:latest"},
+        )
+        node_b = await builder.add_node(
+            "link-node-b",
+            node_type="docker",
+            properties={"image": "alpine:latest"},
+        )
+
+        try:
+            link = await builder.add_link(node_a.node_id, node_b.node_id)
+            assert link.link_id
+
+            # Verify via list
+            links = await builder.list_links()
+            link_ids = {l.link_id for l in links}
+            assert link.link_id in link_ids
+
+            # Remove link
+            removed = await builder.remove_link(link.link_id)
+            assert removed is True
+        finally:
+            await builder.remove_node(node_a.node_id)
+            await builder.remove_node(node_b.node_id)

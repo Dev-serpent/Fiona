@@ -1,0 +1,32 @@
+# Fiona Agent Configuration
+# ========================
+# Copy this file to ~/.config/fiona/agent.yaml and customise as needed.
+# Settings are merged in order: defaults → this file → FIONA_AGENT_* env vars.
+
+# ── LLM Provider ──────────────────────────────────────────────────────
+ollama_base_url: "http://localhost:11434/api"
+default_model: "qwen3:8b-en"
+llm_timeout_seconds: 120.0
+llm_temperature: 0.3
+llm_max_tokens: 2048
+
+# ── Agent Discovery ───────────────────────────────────────────────────
+# Directories scanned for Markdown agent files.  Relative paths are
+# resolved from the project root.
+agent_dirs:
+  - "agents"
+
+# ── Orchestration ─────────────────────────────────────────────────────
+parallel_by_default: false
+max_sub_agents: 5
+max_turns_per_sub_agent: 10
+max_plan_retries: 2
+context_max_tokens: 2048
+default_agent: "general"
+
+# ── Memory / Persistence ──────────────────────────────────────────────
+chat_store_path: "~/.fiona/chat.db"
+
+# ── Hot Reload ────────────────────────────────────────────────────────
+enable_hot_reload: false
+hot_reload_poll_interval: 5.0

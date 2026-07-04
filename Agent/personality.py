@@ -1,8 +1,14 @@
 from __future__ import annotations
 
+import logging
+import os
 import threading
 from dataclasses import dataclass
 from typing import Any, ClassVar
+
+from Agent.agent_meta import AgentMeta
+
+log = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -52,7 +58,7 @@ class PersonalityRegistry:
     _instance: PersonalityRegistry | None = None
     _lock: ClassVar[threading.Lock] = threading.Lock()
 
-    def __new__(cls) -> PersonalityRegistry:
+    def __new__(cls, **kwargs: Any) -> PersonalityRegistry:
         if cls._instance is None:
             with cls._lock:
                 if cls._instance is None:
@@ -61,13 +67,93 @@ class PersonalityRegistry:
                     cls._instance = instance
         return cls._instance  # type: ignore[return-value]
 
-    def __init__(self) -> None:
+    def __init__(self, *, agent_dirs: list[str] | None = None) -> None:
+        """Initialise the registry.
+
+        *agent_dirs* is an optional list of filesystem paths to scan for
+        Markdown agent files.  If ``None`` (the default) the registry
+        looks for a ``agents/`` directory next to the project root.
+        Built-in personalities are always registered first, then agents
+        from disk are merged in (disk agents override builtins with the
+        same name).
+        """
         if getattr(self, "_initialized", False):
             return
         self._personalities: dict[str, Personality] = {}
         self._instance_lock: threading.Lock = threading.Lock()
+        self._agent_metas: dict[str, AgentMeta] = {}
+        self._agent_meta_lock: threading.Lock = threading.Lock()
         self._register_builtins()
+        self._load_from_agents_dir(agent_dirs)
         self._initialized = True
+
+    # ── Agent metadata API ────────────────────────────────────────────
+
+    def get_agent_meta(self, name: str) -> AgentMeta:
+        """Return the ``AgentMeta`` for a registered agent.
+
+        Raises ``KeyError`` if not found.
+        """
+        with self._agent_meta_lock:
+            if name not in self._agent_metas:
+                raise KeyError(f"agent metadata not found: {name}")
+            return self._agent_metas[name]
+
+    def list_agent_metas(self) -> list[AgentMeta]:
+        """Return ``AgentMeta`` for every registered agent."""
+        with self._agent_meta_lock:
+            return list(self._agent_metas.values())
+
+    def register_agent_meta(self, meta: AgentMeta) -> None:
+        """Register an ``AgentMeta`` and its corresponding ``Personality``.
+
+        If a personality with the same name already exists (e.g. from
+        builtins), it is overwritten.
+        """
+        if not meta.name or not meta.name.strip():
+            raise ValueError("agent name must be non-empty")
+        personality = meta.to_personality()
+        with self._instance_lock, self._agent_meta_lock:
+            self._personalities[meta.name] = personality
+            self._agent_metas[meta.name] = meta
+
+    # ── Disk scanning ─────────────────────────────────────────────────
+
+    def _load_from_agents_dir(self, agent_dirs: list[str] | None = None) -> None:
+        """Scan filesystem directories for Markdown agent files.
+
+        If *agent_dirs* is ``None``, the method looks for ``agents/``
+        relative to the project root (two directories up from this file).
+        Each valid ``.md`` file is parsed into an ``AgentMeta`` and
+        registered.
+        """
+        if agent_dirs is None:
+            # Default: look for agents/ next to the project root
+            project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            default_dir = os.path.join(project_root, "agents")
+            if os.path.isdir(default_dir):
+                agent_dirs = [default_dir]
+            else:
+                agent_dirs = []
+
+        for directory in agent_dirs:
+            if not os.path.isdir(directory):
+                log.debug("Agent directory does not exist: %s", directory)
+                continue
+            try:
+                from Agent.agent_loader import discover_agents
+
+                metas = discover_agents(directory)
+            except Exception:
+                log.exception("Error discovering agents in %s", directory)
+                continue
+
+            for meta in metas:
+                try:
+                    self.register_agent_meta(meta)
+                    log.info("Registered agent '%s' v%s from %s", meta.name, meta.version, meta.source_path)
+                except (ValueError, Exception):
+                    log.exception("Failed to register agent '%s' from %s", meta.name, meta.source_path)
 
     @classmethod
     def get_instance(cls) -> PersonalityRegistry:
@@ -134,66 +220,69 @@ class PersonalityRegistry:
         return _GENERAL_SYSTEM_PROMPT  # graceful fallback
 
     def _register_builtins(self) -> None:
-        """Register the 6 built-in personalities."""
-        general = Personality(
-            name="general",
-            description="General-purpose assistant with full tool access",
-            system_prompt=_GENERAL_SYSTEM_PROMPT,
-            conversational_system_prompt=_GENERAL_CONVERSATIONAL_PROMPT,
-            allowed_tools=None,
-            model_override=None,
-        )
-        planner = Personality(
-            name="planner",
-            description="Strategic planner — reads state, does not execute",
-            system_prompt=_PLANNER_SYSTEM_PROMPT,
-            allowed_tools=frozenset({
-                "seeondesk_list", "seeondesk_active", "fiona_status",
-                "recall_search", "recall_remember",
-            }),
-            model_override="qwen3:8b-en",
-        )
-        engineer = Personality(
-            name="engineer",
-            description="Execution specialist — automation & input",
-            system_prompt=_ENGINEER_SYSTEM_PROMPT,
-            allowed_tools=frozenset({
-                "press", "click", "move", "text", "launch_binding", "macro",
-                "seeondesk_list", "seeondesk_active", "fiona_status",
-            }),
-            model_override=None,
-        )
-        analyst = Personality(
-            name="analyst",
-            description="Research & memory analyst",
-            system_prompt=_ANALYST_SYSTEM_PROMPT,
-            allowed_tools=frozenset({
-                "dataclient_mine", "recall_remember", "recall_search",
-                "seeondesk_analyze", "seeondesk_list", "seeondesk_active",
-                "fiona_status",
-            }),
-            model_override="qwen3:8b-en",
-        )
-        security = Personality(
-            name="security",
-            description="Read-only audit personality",
-            system_prompt=_SECURITY_SYSTEM_PROMPT,
-            allowed_tools=frozenset({
-                "seeondesk_list", "seeondesk_active", "fiona_status",
-                "recall_search",
-            }),
-            model_override="qwen3:8b-en",
-        )
-        # Controller personality uses the rule-framework files as its prompt.
-        controller = Personality(
-            name="controller",
-            description="Orchestration agent — plans, delegates, verifies",
-            system_prompt=self._load_rules_prompt(),
-            allowed_tools=None,
-            model_override="qwen3:8b-en",
-        )
-        for p in (general, planner, engineer, analyst, security, controller):
+        """Register the 6 built-in personalities (and their AgentMeta wrappers)."""
+        builtins: list[Personality] = [
+            Personality(
+                name="general",
+                description="General-purpose assistant with full tool access",
+                system_prompt=_GENERAL_SYSTEM_PROMPT,
+                conversational_system_prompt=_GENERAL_CONVERSATIONAL_PROMPT,
+                allowed_tools=None,
+                model_override=None,
+            ),
+            Personality(
+                name="planner",
+                description="Strategic planner — reads state, does not execute",
+                system_prompt=_PLANNER_SYSTEM_PROMPT,
+                allowed_tools=frozenset({
+                    "seeondesk_list", "seeondesk_active", "fiona_status",
+                    "recall_search", "recall_remember",
+                }),
+                model_override="qwen3:8b-en",
+            ),
+            Personality(
+                name="engineer",
+                description="Execution specialist — automation & input",
+                system_prompt=_ENGINEER_SYSTEM_PROMPT,
+                allowed_tools=frozenset({
+                    "press", "click", "move", "text", "launch_binding", "macro",
+                    "seeondesk_list", "seeondesk_active", "fiona_status",
+                }),
+                model_override=None,
+            ),
+            Personality(
+                name="analyst",
+                description="Research & memory analyst",
+                system_prompt=_ANALYST_SYSTEM_PROMPT,
+                allowed_tools=frozenset({
+                    "dataclient_mine", "recall_remember", "recall_search",
+                    "seeondesk_analyze", "seeondesk_list", "seeondesk_active",
+                    "fiona_status",
+                }),
+                model_override="qwen3:8b-en",
+            ),
+            Personality(
+                name="security",
+                description="Read-only audit personality",
+                system_prompt=_SECURITY_SYSTEM_PROMPT,
+                allowed_tools=frozenset({
+                    "seeondesk_list", "seeondesk_active", "fiona_status",
+                    "recall_search",
+                }),
+                model_override="qwen3:8b-en",
+            ),
+            Personality(
+                name="controller",
+                description="Orchestration agent — plans, delegates, verifies",
+                system_prompt=self._load_rules_prompt(),
+                allowed_tools=None,
+                model_override="qwen3:8b-en",
+            ),
+        ]
+        for p in builtins:
             self._personalities[p.name] = p
+            meta = AgentMeta.from_personality(p)
+            self._agent_metas[p.name] = meta
 
 
 # ======================================================================

@@ -1,0 +1,17 @@
+name: web-research
+description: Search the web, fetch and summarise content from URLs
+version: "1.0.0"
+tools:
+  - web_search
+  - web_fetch
+instruction: |
+  Use the web_search tool to find relevant information, then use web_fetch
+  to retrieve full-page content from the most promising URLs. Summarise
+  findings concisely, citing sources.
+tags:
+  - web
+  - research
+  - search
+metadata:
+  category: research
+  requires_network: true

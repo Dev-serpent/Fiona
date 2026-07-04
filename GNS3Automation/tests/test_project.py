@@ -119,3 +119,52 @@ class TestProjectManager:
                 # No mock = connection refused
                 with pytest.raises(GNS3ProjectError, match="Failed to create"):
                     await mgr.create("broken-lab")
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# Real-server integration tests
+# ═══════════════════════════════════════════════════════════════════════
+
+
+@pytest.mark.asyncio
+class TestProjectManagerReal:
+    """Project manager tests against a real GNS3 server."""
+
+    async def test_create_and_delete_real(self, gns3_client: GNS3Client) -> None:
+        """Create a project, verify it, delete it."""
+        mgr = ProjectManager(gns3_client)
+        project = await mgr.create("test-pm-real")
+        assert project.project_id
+        assert project.name == "test-pm-real"
+        assert project.status == "closed"
+
+        # Verify via get
+        fetched = await mgr.get(project.project_id)
+        assert fetched is not None
+        assert fetched.project_id == project.project_id
+
+        # Delete
+        deleted = await mgr.delete(project.project_id)
+        assert deleted is True
+
+        # Verify it's gone
+        fetched = await mgr.get(project.project_id)
+        assert fetched is None
+
+    async def test_list_real(self, gns3_client: GNS3Client, test_project: tuple) -> None:
+        """List should include the test project."""
+        project, _ = test_project
+        mgr = ProjectManager(gns3_client)
+        projects = await mgr.list()
+        project_ids = {p.project_id for p in projects}
+        assert project.project_id in project_ids
+
+    async def test_open_and_close_real(self, gns3_client: GNS3Client, test_project: tuple) -> None:
+        """Open and close a project."""
+        project, mgr = test_project
+
+        opened = await mgr.open(project.project_id)
+        assert opened.status in ("opened", "opening")
+
+        closed = await mgr.close(project.project_id)
+        assert closed.status in ("closed", "closing")

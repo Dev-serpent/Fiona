@@ -48,6 +48,25 @@ class ForemanConfig:
     context_max_tokens: int = 2048
     default_personality: str = "general"
 
+    @classmethod
+    def from_agent_config(cls, agent_config: Any) -> ForemanConfig:
+        """Build from an ``AgentConfig`` (lazy import to avoid circular deps).
+
+        Args:
+            agent_config: An ``Agent.config.AgentConfig`` instance.
+
+        Returns:
+            A new ``ForemanConfig`` with values mapped from the agent config.
+        """
+        return cls(
+            parallel_by_default=agent_config.parallel_by_default,
+            max_sub_agents=agent_config.max_sub_agents,
+            max_turns_per_sub_agent=agent_config.max_turns_per_sub_agent,
+            max_plan_retries=agent_config.max_plan_retries,
+            context_max_tokens=agent_config.context_max_tokens,
+            default_personality=agent_config.default_agent,
+        )
+
 
 # ======================================================================
 # 1b. PlanValidationError
@@ -722,6 +741,33 @@ class ForemanAgent:
         self._chat_store = chat_store
         self._config = config if config is not None else ForemanConfig()
         self._assessor = ComplexityAssessor(client)
+
+    @classmethod
+    def from_agent_config(
+        cls,
+        client: OllamaClient,
+        registry: PersonalityRegistry,
+        agent_config: Any,  # Agent.config.AgentConfig
+        chat_store: ChatStore | None = None,
+    ) -> ForemanAgent:
+        """Create a ``ForemanAgent`` from an ``AgentConfig``.
+
+        Args:
+            client: Ollama LLM client.
+            registry: Personality / agent registry.
+            agent_config: An ``AgentConfig`` instance with orchestration settings.
+            chat_store: Optional chat persistence store.
+
+        Returns:
+            A configured ``ForemanAgent``.
+        """
+        foreman_config = ForemanConfig.from_agent_config(agent_config)
+        return cls(
+            client=client,
+            registry=registry,
+            chat_store=chat_store,
+            config=foreman_config,
+        )
 
     # ------------------------------------------------------------------
     # Public API
