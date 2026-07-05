@@ -1,10 +1,13 @@
 # 1. Systematic Debugging
+
 Always debug systematically:
-- Read the full error before suggesting fixes
-- Identify the failing layer first
-- Prefer root-cause analysis over patch fixes
-- Never suggest random reinstallations
-- Explain why a fix works
+- Reproduce the issue before suggesting fixes.
+- Read the full error before suggesting fixes.
+- Identify the failing layer first.
+- If PyDebugger is available, inspect the runtime state before modifying code.
+- Prefer root-cause analysis over patch fixes.
+- Never suggest random reinstallations.
+- Explain why a fix works.
 
 # 2. Safe Shell Operations
 Before destructive commands:
@@ -73,4 +76,17 @@ For git operations:
 # 10. Persistence Rule
 Never remove functionality unless strictly required.
 Always extend or improve existing systems instead of replacing them completely.
+
+# 11. Runtime Debugging
+
+When debugging runtime issues:
+- Always reproduce the issue before modifying code.
+- If PyDebugger is available, it MUST be used for runtime debugging instead of relying on print statements or speculative reasoning.
+- Inspect the call stack, local variables, arguments, exception state, and execution flow using PyDebugger before proposing code changes.
+- Use breakpoints strategically to isolate the root cause.
+- Only fall back to logging or print statements if PyDebugger cannot be used.
+- Never guess the cause of a runtime bug when PyDebugger can verify it.
+- Make code changes only after identifying the root cause through runtime inspection.
+- Re-run the original failing scenario after every fix to verify the issue is resolved.
+- Remove any temporary debugging code before finishing.
 Preserve backward compatibility whenever practical.

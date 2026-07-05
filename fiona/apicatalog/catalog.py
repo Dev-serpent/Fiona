@@ -15,9 +15,12 @@ from fiona.apicatalog.search import ApiSearcher
 logger = logging.getLogger(__name__)
 
 # Regex for section headings in the public-apis README
-_HEADING_RE = re.compile(r"^##?\s+(.+)$")
+# Matches ## and ### (categories are ### under ## Index)
+_HEADING_RE = re.compile(r"^#{2,3}\s+(.+)$")
 # Regex to detect table separator rows (|---|---|---|...)
 _SEPARATOR_RE = re.compile(r"^\|[\s\-:]+\|")
+# Regex to extract a markdown link: [text](url)
+_MD_LINK_RE = re.compile(r"^\[(.+?)\]\((.+?)\)\s*$")
 
 
 class ApiCatalog:
@@ -124,12 +127,21 @@ class ApiCatalog:
     def _parse_readme(self, path: Path) -> list[ApiEntry]:
         """Parse the public-apis ``README.md`` table format.
 
-        Expected structure::
+        Handles two formats:
 
-            # Category Name
+        **Legacy 6-column** (old README)::
+
+            ## Category Name
             | API | Description | Auth | HTTPS | CORS | Link |
             |---|---|---|---|---|---|
             | Name | Desc | apiKey | Yes | Yes | https://... |
+
+        **New 5-column** (current README, URL embedded in name)::
+
+            ## Category Name
+            | API | Description | Auth | HTTPS | CORS |
+            |---|---|---|---|---|
+            | [Name](https://...) | Desc | apiKey | Yes | Yes |
         """
         if not path.exists():
             logger.warning("README.md not found at %s", path)
@@ -140,24 +152,27 @@ class ApiCatalog:
 
         with open(path, encoding="utf-8") as f:
             for line in f:
-                # Section header
+                # Section header (## or ### — # is the document title)
                 m = _HEADING_RE.match(line)
                 if m:
-                    current_category = m.group(1).strip()
+                    heading = m.group(1).strip()
+                    # Skip non-API section containers
+                    if heading not in ("Index", "APILayer APIs", "Learn more about Public APIs", "License"):
+                        current_category = heading
                     continue
 
                 # Skip separator rows (|---|---|---|...)
                 if _SEPARATOR_RE.match(line):
                     continue
 
-                # Table row: must start with '|' and have at least 6 pipe chars
+                # Table row: must start with '|' and have at least 5 pipe chars
                 if not line.startswith("|"):
                     continue
-                if line.count("|") < 6:
+                if line.count("|") < 5:
                     continue
 
                 cells = [c.strip() for c in line.split("|")[1:-1]]
-                if len(cells) < 6:
+                if len(cells) < 5:
                     continue
 
                 # Skip header rows (first cell is a column label, not an API name)
@@ -165,15 +180,24 @@ class ApiCatalog:
                 if first in ("api", "name", "api name", "resource", "endpoint"):
                     continue
 
-                name = cells[0]
-                description = cells[1]
-                auth_raw = cells[2] if cells[2] else None
-                https_raw = cells[3].lower() if len(cells) > 3 else "no"
-                cors_raw = cells[4].lower() if len(cells) > 4 else "unknown"
-                url = cells[5] if len(cells) > 5 else ""
+                # ---- Extract name + url ----
+                # New format: name is a markdown link [Name](url) in column 0
+                md_match = _MD_LINK_RE.match(cells[0])
+                if md_match:
+                    name = md_match.group(1)
+                    url = md_match.group(2)
+                else:
+                    name = cells[0]
+                    # Legacy format: URL is in column 5 (index 5 out of 6)
+                    url = cells[5] if len(cells) > 5 else ""
 
                 if not name or not url:
                     continue
+
+                description = cells[1]
+                auth_raw = cells[2] if len(cells) > 2 and cells[2] else None
+                https_raw = cells[3].lower() if len(cells) > 3 else "no"
+                cors_raw = cells[4].lower() if len(cells) > 4 else "unknown"
 
                 # Normalise auth — treat "No" / empty as None
                 auth: str | None = auth_raw
