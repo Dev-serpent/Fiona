@@ -20,6 +20,10 @@ env/
 # Node.js
 node_modules/
 
+# Accidental Claude Code artifacts at project root
+/package.json
+/package-lock.json
+
 # Build Outputs
 build/
 dist/
