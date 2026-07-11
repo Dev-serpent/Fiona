@@ -1,7 +1,7 @@
 [project]
 name = "fiona"
-version = "0.1.0"
-description = "Mouse-free app launcher built around simultaneous key chords."
+version = "1.0.0"
+description = "Modular local host-control platform with encrypted communication, desktop awareness, agent orchestration, and web dashboard."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
