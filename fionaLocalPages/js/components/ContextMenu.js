@@ -73,6 +73,9 @@ export function createContextMenu() {
   /** @type {boolean} Whether a submenu is open */
   let _submenuOpen = false;
 
+  /** @type {Object|null} Touch tap tracking for mobile */
+  let _touchTapItem = null;
+
   /* ── Render ──────────────────────────────────────────────────────────── */
 
   /**
@@ -204,7 +207,7 @@ export function createContextMenu() {
         }
       });
 
-      // Click handler
+      // Click handler (mouse)
       itemEl.addEventListener('mousedown', (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -214,6 +217,26 @@ export function createContextMenu() {
         e.stopPropagation();
         if (item.disabled) return;
         if (item.children && item.children.length > 0) return;
+        _removeMenu();
+        if (item.handler) {
+          item.handler();
+        }
+      });
+
+      // Click handler (touch)
+      itemEl.addEventListener('touchstart', (e) => {
+        if (item.disabled) return;
+        if (item.children && item.children.length > 0) return;
+        // Delay slightly to allow scroll vs tap discrimination
+        _touchTapItem = item;
+      }, { passive: true });
+
+      itemEl.addEventListener('touchend', (e) => {
+        if (_touchTapItem !== item) return;
+        _touchTapItem = null;
+        if (item.disabled) return;
+        if (item.children && item.children.length > 0) return;
+        e.preventDefault();
         _removeMenu();
         if (item.handler) {
           item.handler();
@@ -229,14 +252,23 @@ export function createContextMenu() {
    * @private
    */
   function _onClickOutside(el) {
-    const handler = (e) => {
+    const mouseHandler = (e) => {
+      if (!el.contains(e.target)) {
+        _removeMenu();
+      }
+    };
+    const touchHandler = (e) => {
       if (!el.contains(e.target)) {
         _removeMenu();
       }
     };
     // Use mousedown to catch before mouseup on items
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
+    document.addEventListener('mousedown', mouseHandler);
+    document.addEventListener('touchstart', touchHandler, { passive: true });
+    return () => {
+      document.removeEventListener('mousedown', mouseHandler);
+      document.removeEventListener('touchstart', touchHandler);
+    };
   }
 
   /**

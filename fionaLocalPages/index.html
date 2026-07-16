@@ -46,6 +46,20 @@
     <!-- ─── App Header ──────────────────────────────────────────────── -->
     <header class="app-header" role="banner">
       <div class="app-header__left">
+        <!-- Hamburger menu toggle (visible on mobile) -->
+        <button class="sidebar-toggle" id="sidebar-toggle"
+                aria-label="Toggle navigation menu"
+                data-action="toggle-sidebar"
+                title="Toggle navigation menu">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round"
+               stroke-linejoin="round">
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+
         <!-- Breadcrumb navigation -->
         <nav class="breadcrumb" aria-label="Breadcrumb">
           <span class="breadcrumb__item breadcrumb__item--current" id="breadcrumb-current">
@@ -112,6 +126,10 @@
 
     <!-- ─── App Main (sidebar + content + right panel) ──────────────── -->
     <main class="app-main" id="app-main" role="main">
+
+      <!-- Sidebar overlay (mobile: tap to close) -->
+      <div class="sidebar-overlay" id="sidebar-overlay"
+           data-action="toggle-sidebar" role="presentation"></div>
 
       <!-- Sidebar -->
       <aside class="sidebar" id="sidebar">

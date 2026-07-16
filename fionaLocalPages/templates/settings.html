@@ -65,6 +65,107 @@
       0%, 100% { opacity: 1; }
       50% { opacity: 0.4; }
     }
+
+    /* ── Mobile Responsive ───────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .settings-page {
+        grid-template-columns: 1fr !important;
+        grid-template-rows: auto 1fr;
+      }
+      .settings-nav {
+        border-right: none !important;
+        border-bottom: 1px solid var(--border);
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        flex-direction: row !important;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        padding: 4px 0 !important;
+      }
+      .settings-nav::-webkit-scrollbar {
+        display: none;
+      }
+      .settings-nav > div:first-child {
+        display: none !important;
+      }
+      .settings-nav nav {
+        display: flex !important;
+        flex-direction: row !important;
+        padding: 0 var(--space-2) !important;
+      }
+      .settings-nav nav button.settings-nav__item {
+        flex-shrink: 0;
+        white-space: nowrap;
+        border-right: none !important;
+        border-bottom: 2px solid transparent !important;
+        padding: 8px 12px !important;
+        font-size: var(--font-size-xs) !important;
+      }
+      .settings-nav nav button.settings-nav__item--active {
+        border-bottom-color: var(--accent) !important;
+        border-right: none !important;
+      }
+      .settings-nav__icon {
+        width: 14px;
+        height: 14px;
+      }
+      .settings-nav > div:last-child {
+        display: none !important;
+      }
+      .settings-content {
+        padding: var(--space-4) !important;
+        overflow-y: visible !important;
+      }
+      .settings-content > div:first-child {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: var(--space-3) !important;
+      }
+      .settings-content > div:first-child > div:last-child {
+        width: 100%;
+        flex-wrap: wrap;
+      }
+      .settings-content > div:first-child > div:last-child button {
+        flex: 1;
+        min-width: 0;
+      }
+      .settings-form {
+        max-width: 100% !important;
+      }
+      /* Fix form groups for mobile */
+      .settings-form .c-form-group--horizontal {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: var(--space-1) !important;
+      }
+      .settings-form .c-form-group--horizontal > :last-child {
+        width: 100%;
+      }
+      .settings-form select,
+      .settings-form input[type="text"],
+      .settings-form input[type="number"] {
+        max-width: 100% !important;
+        width: 100%;
+        box-sizing: border-box;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .settings-content {
+        padding: var(--space-3) !important;
+      }
+      .settings-content h2 {
+        font-size: var(--font-size-lg) !important;
+      }
+      .settings-nav nav button.settings-nav__item {
+        padding: 6px 10px !important;
+        font-size: var(--font-size-xxs) !important;
+      }
+      .settings-nav__icon {
+        width: 12px;
+        height: 12px;
+      }
+    }
   </style>
 
   <!-- Left Nav -->

@@ -34,6 +34,7 @@ const TEXT_EXTENSIONS = new Set([
 ]);
 const IMAGE_EXTENSIONS = new Set(['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'bmp', 'ico']);
 const MAX_TEXT_PREVIEW = 50000; // max chars to preview
+const MOBILE_BREAKPOINT = 768; // px
 
 /* ─── Page State ──────────────────────────────────────────────────────────── */
 
@@ -55,6 +56,9 @@ let _state = {
   isDragging: false,
   previewType: null,        // 'text' | 'image' | 'metadata' | 'loading' | null
   rootPath: DEFAULT_ROOT,
+  isMobile: window.innerWidth <= MOBILE_BREAKPOINT,
+  treeVisible: false,       // mobile: tree panel toggle
+  previewOpen: false,       // mobile: preview sheet toggle
 };
 
 let _unbindFns = [];
@@ -239,6 +243,10 @@ async function selectFile(path, entry) {
   if (_isDestroyed) return;
   _state.selectedPath = path;
   _state.selectedEntry = entry;
+  // On mobile, auto-open preview sheet when selecting a file
+  if (_state.isMobile && entry.type !== 'directory') {
+    _state.previewOpen = true;
+  }
 
   // Update tree highlight
   _highlightTreeNode(path);
@@ -358,6 +366,16 @@ function renderContent() {
 
   contentEl.innerHTML = html`
     <div class="fe-file-toolbar">
+      ${_state.isMobile ? html`
+        <button class="fe-tree-toggle" data-action="fe-toggle-tree"
+                title="Toggle file tree" aria-label="Toggle file tree">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" width="16" height="16"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+          </svg>
+        </button>
+      ` : ''}
       <div class="fe-file-search">
         <span class="fe-file-search__icon">${ICONS.search}</span>
         <input type="text" class="fe-file-search__input"
@@ -464,8 +482,16 @@ function renderPreview() {
   const previewEl = _container?.querySelector('.fe-preview');
   if (!previewEl) return;
 
+  // On mobile, always sync preview open/closed state
+  if (_state.isMobile) {
+    previewEl.classList.toggle('fe-preview--open', _state.previewOpen);
+  }
+
   if (!_state.selectedEntry) {
     previewEl.innerHTML = html`
+      ${_state.isMobile ? html`
+        <div class="fe-preview__handle" data-action="fe-toggle-preview"></div>
+      ` : ''}
       <div class="fe-preview__empty">
         <div class="fe-preview__empty-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -502,6 +528,7 @@ function renderPreview() {
     const highlighted = highlightCode(content, ext);
 
     previewEl.innerHTML = html`
+      ${_state.isMobile ? html`<div class="fe-preview__handle" data-action="fe-toggle-preview"></div>` : ''}
       <div class="fe-preview__header">
         <span class="fe-preview__filename">${_escapeHtml(_state.selectedEntry.name)}</span>
         <span class="fe-preview__filemeta">
@@ -519,6 +546,7 @@ function renderPreview() {
     // Image files: show preview via API endpoint
     const imgPath = _state.selectedEntry.path;
     previewEl.innerHTML = html`
+      ${_state.isMobile ? html`<div class="fe-preview__handle" data-action="fe-toggle-preview"></div>` : ''}
       <div class="fe-preview__header">
         <span class="fe-preview__filename">${_escapeHtml(_state.selectedEntry.name)}</span>
         <span class="fe-preview__filemeta">${formatFileSize(_state.selectedEntry.size)}</span>
@@ -536,6 +564,7 @@ function renderPreview() {
   // Default: metadata view
   const info = _state.fileInfo || _state.selectedEntry;
   previewEl.innerHTML = html`
+    ${_state.isMobile ? html`<div class="fe-preview__handle" data-action="fe-toggle-preview"></div>` : ''}
     <div class="fe-preview__header">
       <span class="fe-preview__filename">${_escapeHtml(_state.selectedEntry.name)}</span>
     </div>
@@ -1113,6 +1142,107 @@ function bindEvents() {
     cleanups.push(dragHandler);
   }
 
+  // ── File content toolbar (tree toggle, view toggle) ──
+  const fileToolbar = _container.querySelector('.fe-file-toolbar');
+  if (fileToolbar) {
+    const handler = (e) => {
+      const action = e.target.closest('[data-action]');
+      if (!action) return;
+      switch (action.dataset.action) {
+        case 'fe-toggle-tree':
+          _state.treeVisible = !_state.treeVisible;
+          const treePanel = _container.querySelector('.fe-tree-panel');
+          if (treePanel) {
+            treePanel.classList.toggle('fe-tree-panel--visible', _state.treeVisible);
+          }
+          break;
+        case 'fe-toggle-preview':
+          _state.previewOpen = !_state.previewOpen;
+          const previewEl = _container.querySelector('.fe-preview');
+          if (previewEl) {
+            previewEl.classList.toggle('fe-preview--open', _state.previewOpen);
+          }
+          break;
+      }
+    };
+    fileToolbar.addEventListener('click', handler);
+    cleanups.push(() => fileToolbar.removeEventListener('click', handler));
+  }
+
+  // ── Preview handle toggle (mobile) ──
+  const previewEl = _container.querySelector('.fe-preview');
+  if (previewEl) {
+    const handler = (e) => {
+      const handle = e.target.closest('.fe-preview__handle');
+      if (!handle) return;
+      _state.previewOpen = !_state.previewOpen;
+      previewEl.classList.toggle('fe-preview--open', _state.previewOpen);
+    };
+    previewEl.addEventListener('click', handler);
+    cleanups.push(() => previewEl.removeEventListener('click', handler));
+  }
+
+  // ── Click outside mobile tree panel to close ──
+  const treePanel = _container.querySelector('.fe-tree-panel');
+  const contentPanel = _container.querySelector('#fe-file-content');
+  if (treePanel && contentPanel) {
+    const handler = (e) => {
+      if (!_state.isMobile || !_state.treeVisible) return;
+      if (!treePanel.contains(e.target) && !e.target.closest('.fe-tree-toggle')) {
+        _state.treeVisible = false;
+        treePanel.classList.remove('fe-tree-panel--visible');
+      }
+    };
+    contentPanel.addEventListener('click', handler);
+    cleanups.push(() => contentPanel.removeEventListener('click', handler));
+  }
+
+  // ── Long-press on file items (mobile context menu) ──
+  const fileContainerEl = _container.querySelector('#fe-file-container');
+  if (fileContainerEl) {
+    let longPressTimer = null;
+    let longPressTriggered = false;
+
+    const touchStart = (e) => {
+      const item = e.target.closest('.fe-file-item');
+      if (!item) return;
+      longPressTriggered = false;
+      longPressTimer = setTimeout(() => {
+        longPressTriggered = true;
+        e.preventDefault();
+        const touch = e.touches[0];
+        showFileContextMenu(touch.clientX, touch.clientY, {
+          name: item.dataset.name,
+          path: item.dataset.path,
+          type: item.dataset.type,
+        });
+      }, 500);
+    };
+
+    const touchEnd = (e) => {
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      }
+    };
+
+    const touchMove = () => {
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      }
+    };
+
+    fileContainerEl.addEventListener('touchstart', touchStart, { passive: false });
+    fileContainerEl.addEventListener('touchend', touchEnd);
+    fileContainerEl.addEventListener('touchmove', touchMove);
+    cleanups.push(() => {
+      fileContainerEl.removeEventListener('touchstart', touchStart);
+      fileContainerEl.removeEventListener('touchend', touchEnd);
+      fileContainerEl.removeEventListener('touchmove', touchMove);
+    });
+  }
+
   // ── Search input ──
   const searchInput = _container.querySelector('#fe-search-input');
   if (searchInput) {
@@ -1168,7 +1298,18 @@ function bindEvents() {
   const resizeHandler = () => {
     clearTimeout(_resizeTimer);
     _resizeTimer = setTimeout(() => {
-      // Just keep references alive
+      const wasMobile = _state.isMobile;
+      _state.isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
+      if (_state.isMobile !== wasMobile) {
+        // Re-render content to add/remove tree toggle, preview handle
+        renderContent();
+        renderPreview();
+        if (!_state.isMobile) {
+          // Reset mobile-only states on resize to desktop
+          _state.treeVisible = false;
+          _state.previewOpen = false;
+        }
+      }
     }, 150);
   };
   window.addEventListener('resize', resizeHandler);

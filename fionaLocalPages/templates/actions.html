@@ -1,35 +1,156 @@
 <!-- actions.html — Actions Page Template -->
-<div style="margin-bottom: var(--space-5);">
-  <div style="display: flex; align-items: center; justify-content: space-between;">
-    <div>
-      <h1 style="font-size: var(--font-size-xxl); font-weight: var(--font-weight-bold); color: var(--text-primary); margin: 0;">
-        Actions
-      </h1>
-      <p style="font-size: var(--font-size-sm); color: var(--text-muted); margin: 2px 0 0 0;">
-        Browse and run registered actions
-      </p>
+<style>
+  /* ── Mobile Responsive: Actions Page ────────────────────────────────── */
+  @media (max-width: 768px) {
+    /* Fluid typography */
+    .actions-header h1 {
+      font-size: clamp(1.1rem, 5vw, 1.5rem) !important;
+    }
+
+    /* Horizontal-scrollable tabs */
+    .actions-tabs {
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      gap: 0 !important;
+      flex-wrap: nowrap !important;
+    }
+    .actions-tabs::-webkit-scrollbar {
+      display: none;
+    }
+    .actions-tabs .c-tab {
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    /* Search bar full width */
+    .actions-search-wrap {
+      max-width: 100% !important;
+    }
+
+    /* Action card: below 480px, stack run button below name */
+    @media (max-width: 480px) {
+      .action-card-main {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+      }
+      .action-card-main .action-run-btn-wrap {
+        width: 100%;
+        margin-top: 8px;
+      }
+      .action-card-main .action-run-btn-wrap button {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    /* History items: compact */
+    .history-card-main {
+      flex-wrap: wrap;
+      gap: 6px !important;
+    }
+    .history-card-main .history-timestamp {
+      min-width: auto !important;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Library cards: wrap action buttons */
+    .library-card-actions {
+      flex-wrap: wrap;
+      justify-content: flex-start !important;
+    }
+
+    /* Adjustment for action card confirmation section */
+    .action-confirm-actions {
+      flex-direction: column;
+    }
+    .action-confirm-actions button {
+      width: 100%;
+      justify-content: center;
+    }
+
+    /* Make result toggle button slightly bigger for touch */
+    .action-result-toggle,
+    .history-result-toggle {
+      min-width: 36px;
+      min-height: 36px;
+    }
+
+    /* Badges/tags should not wrap awkwardly */
+    .action-tags-wrap {
+      gap: 4px;
+    }
+
+    /* Create button in library tab: full width on mobile */
+    .library-create-btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    /* Empty states: reduce padding */
+    .actions-empty-state {
+      padding: var(--space-8) var(--space-4) !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    /* History items: further compact */
+    .history-card .c-card__body {
+      padding: 10px 12px !important;
+    }
+    .history-duration {
+      display: none;
+    }
+
+    /* Action card body compact */
+    .action-card .c-card__body {
+      padding: 12px !important;
+    }
+
+    /* Library card body compact */
+    .library-card .c-card__body {
+      padding: 12px !important;
+    }
+  }
+</style>
+
+<div class="actions-page">
+  <div class="actions-header" style="margin-bottom: var(--space-5);">
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+      <div>
+        <h1 style="font-size: var(--font-size-xxl); font-weight: var(--font-weight-bold); color: var(--text-primary); margin: 0;">
+          Actions
+        </h1>
+        <p style="font-size: var(--font-size-sm); color: var(--text-muted); margin: 2px 0 0 0;">
+          Browse and run registered actions
+        </p>
+      </div>
     </div>
   </div>
-</div>
 
-<div class="c-tabs" style="margin-bottom: var(--space-4);">
-  <div class="c-tab {{#if actionsTabActive}}c-tab--active{{/if}}" data-tab="actions">
-    <span class="c-tab__icon">{{{boltIcon}}}</span>
-    Actions
-    <span class="c-tab__count">{{actionsCount}}</span>
+  <div class="c-tabs actions-tabs" style="margin-bottom: var(--space-4);">
+    <div class="c-tab {{#if actionsTabActive}}c-tab--active{{/if}}" data-tab="actions">
+      <span class="c-tab__icon">{{{boltIcon}}}</span>
+      Actions
+      <span class="c-tab__count">{{actionsCount}}</span>
+    </div>
+    <div class="c-tab {{#if historyTabActive}}c-tab--active{{/if}}" data-tab="history">
+      <span class="c-tab__icon">{{{clockIcon}}}</span>
+      History
+      <span class="c-tab__count">{{historyCount}}</span>
+    </div>
+    <div class="c-tab {{#if libraryTabActive}}c-tab--active{{/if}}" data-tab="library">
+      <span class="c-tab__icon">{{{libraryIcon}}}</span>
+      Library
+      <span class="c-tab__count">{{libraryCount}}</span>
+    </div>
   </div>
-  <div class="c-tab {{#if historyTabActive}}c-tab--active{{/if}}" data-tab="history">
-    <span class="c-tab__icon">{{{clockIcon}}}</span>
-    History
-    <span class="c-tab__count">{{historyCount}}</span>
-  </div>
-  <div class="c-tab {{#if libraryTabActive}}c-tab--active{{/if}}" data-tab="library">
-    <span class="c-tab__icon">{{{libraryIcon}}}</span>
-    Library
-    <span class="c-tab__count">{{libraryCount}}</span>
-  </div>
-</div>
 
-<div id="actions-tab-content">
-  {{{tabContent}}}
+  <div id="actions-tab-content">
+    {{{tabContent}}}
+  </div>
 </div>

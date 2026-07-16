@@ -468,10 +468,14 @@ function _initGlobalShortcuts() {
       return;
     }
 
-    // Ctrl/Cmd + B — Toggle sidebar
+    // Ctrl/Cmd + B — Toggle sidebar (mobile overlay on small screens)
     if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
       e.preventDefault();
-      _toggleSidebar();
+      if (window.innerWidth <= 768) {
+        _toggleMobileSidebar();
+      } else {
+        _toggleSidebar();
+      }
       return;
     }
 
@@ -535,6 +539,19 @@ function _isInInput(target) {
 /* ── Sidebar ────────────────────────────────────────────────────────────── */
 
 /**
+ * Toggle the desktop sidebar collapse state via store.
+ * @private
+ */
+function _toggleSidebar() {
+  const current = app.store.get('app.sidebarCollapsed');
+  app.store.set('app.sidebarCollapsed', !current);
+  const main = document.getElementById('app-main');
+  if (main) {
+    main.classList.toggle('app-main--sidebar-collapsed', !current);
+  }
+}
+
+/**
  * Set up sidebar navigation, section collapse, collapse-state sync,
  * and active-highlighting on route change.
  * @private
@@ -550,6 +567,7 @@ function _initSidebar() {
     logo.addEventListener('click', (e) => {
       e.stopPropagation();
       if (app.router) app.router.navigate('/');
+      _closeMobileSidebar();
     });
   }
 
@@ -569,7 +587,7 @@ function _initSidebar() {
     }
   });
 
-  // ── Route changes → update active nav highlight ─────────────────
+  // ── Route changes → update active nav highlight + close mobile sidebar ──
   if (app.router) {
     app.router.onChange((route) => {
       if (!route) return;
@@ -580,7 +598,38 @@ function _initSidebar() {
         const isActive = path === itemPath || (itemPath !== '/' && path.startsWith(itemPath));
         el.classList.toggle('nav-item--active', isActive);
       });
+      // Close mobile sidebar on navigation
+      _closeMobileSidebar();
     });
+  }
+}
+
+/**
+ * Toggle the mobile sidebar open/closed.
+ * Slides the sidebar in from the left and shows overlay.
+ * @private
+ */
+function _toggleMobileSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  const isOpen = sidebar?.classList.toggle('sidebar--mobile-open');
+  if (overlay) {
+    overlay.classList.toggle('sidebar-overlay--visible', isOpen);
+  }
+  document.body.style.overflow = isOpen ? 'hidden' : '';
+}
+
+/**
+ * Close the mobile sidebar if open.
+ * @private
+ */
+function _closeMobileSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  if (sidebar?.classList.contains('sidebar--mobile-open')) {
+    sidebar.classList.remove('sidebar--mobile-open');
+    if (overlay) overlay.classList.remove('sidebar-overlay--visible');
+    document.body.style.overflow = '';
   }
 }
 
@@ -1001,6 +1050,9 @@ function _initHeaderActions() {
         break;
       case 'close-panel':
         _toggleRightPanel();
+        break;
+      case 'toggle-sidebar':
+        _toggleMobileSidebar();
         break;
       case 'open-help':
         // TODO: Implement help system

@@ -812,6 +812,47 @@
 
 /* ── Responsive / Collapse Behaviors ───────────────────────────────────── */
 
+/* ── Hamburger Menu Toggle ────────────────────────────────────────── */
+
+.sidebar-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+  -webkit-app-region: no-drag;
+}
+
+.sidebar-toggle:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+/* ── Sidebar Mobile Overlay ───────────────────────────────────────── */
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: calc(var(--z-sidebar) - 1);
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+  pointer-events: none;
+}
+
+.sidebar-overlay--visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── Desktop: 900px and below ─────────────────────────────────────── */
+
 @media (max-width: 900px) {
   .app-main {
     grid-template-columns: 0px 1fr 0fr;
@@ -836,5 +877,163 @@
   .workspace-grid--split {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto;
+  }
+
+  .search-trigger {
+    min-width: 140px;
+  }
+
+  .search-trigger__kbd {
+    display: none;
+  }
+}
+
+/* ── Phone: 768px and below ───────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  /* HAMBURGER: show toggle, hide sidebar by default */
+  .sidebar-toggle {
+    display: flex;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 48px;
+    left: 0;
+    bottom: 32px;
+    z-index: var(--z-sidebar);
+    transform: translateX(-100%);
+    transition: transform var(--transition-normal);
+    width: 280px;
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .sidebar--mobile-open {
+    transform: translateX(0);
+  }
+
+  .app-main--sidebar-collapsed .sidebar {
+    transform: translateX(-100%);
+    border-right: 1px solid var(--glass-border);
+  }
+
+  .sidebar-overlay {
+    display: block;
+  }
+
+  /* Hide the collapse button on mobile (hamburger replaces it) */
+  .sidebar__collapse-btn {
+    display: none;
+  }
+
+  /* HEADER: compact */
+  .app-header {
+    padding: 0 var(--space-2);
+  }
+
+  .breadcrumb__item {
+    font-size: var(--font-size-xs);
+  }
+
+  .search-trigger {
+    min-width: 100px;
+    padding: 4px 8px;
+  }
+
+  .search-trigger span:not(.search-trigger__kbd) {
+    display: none;
+  }
+
+  .connection-indicator__label {
+    display: none;
+  }
+
+  /* CONTENT AREA: compact */
+  .content-area__header {
+    padding: var(--space-3) var(--space-4);
+    min-height: 44px;
+  }
+
+  .content-area__title {
+    font-size: var(--font-size-md);
+  }
+
+  .content-area__body {
+    padding: var(--space-3);
+  }
+
+  /* RIGHT PANEL: full screen overlay */
+  .right-panel {
+    position: fixed;
+    top: 48px;
+    right: 0;
+    bottom: 32px;
+    z-index: calc(var(--z-sidebar) - 1);
+    width: 100vw;
+    max-width: 100vw;
+    box-shadow: -2px 0 12px rgba(0, 0, 0, 0.3);
+  }
+
+  /* STATUS BAR: compact */
+  .status-bar {
+    padding: 0 var(--space-2);
+    font-size: var(--font-size-xxs);
+  }
+
+  .status-bar__center .status-bar__separator {
+    display: none;
+  }
+
+  .status-bar__center {
+    gap: var(--space-1);
+  }
+
+  .status-bar__item {
+    gap: 2px;
+  }
+}
+
+/* ── Small Phone: 480px and below ─────────────────────────────────── */
+
+@media (max-width: 480px) {
+  .sidebar {
+    width: 100vw;
+    top: 0;
+    bottom: 0;
+    z-index: calc(var(--z-sidebar) + 1);
+  }
+
+  .sidebar-overlay {
+    z-index: var(--z-sidebar);
+  }
+
+  .app-header {
+    height: 44px;
+    min-height: 44px;
+  }
+
+  .content-area__header {
+    padding: var(--space-2) var(--space-3);
+    min-height: 40px;
+  }
+
+  .status-bar {
+    height: 28px;
+    min-height: 28px;
+  }
+
+  .status-bar__left,
+  .status-bar__right {
+    gap: var(--space-1);
+  }
+
+  .status-bar__center .status-bar__item:not(:first-child) {
+    display: none;
+  }
+
+  .search-trigger {
+    min-width: 36px;
+    padding: 4px;
+    justify-content: center;
   }
 }

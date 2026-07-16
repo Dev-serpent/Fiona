@@ -756,15 +756,28 @@ function renderSearchBar() {
 
 function renderSkeletons(container) {
   container.innerHTML = html`
-    <div style="display: grid; grid-template-columns: 220px 1fr; height: 100%; gap: 0;">
-      <div style="padding: var(--space-3); border-right: 1px solid var(--border);">
+    <div class="settings-skeleton" style="display: grid; grid-template-columns: 220px 1fr; height: 100%; gap: 0;">
+      <div class="settings-skeleton__nav" style="padding: var(--space-3); border-right: 1px solid var(--border);">
         ${skeletonText({ width: '100%' })}
         ${html.raw(Array.from({ length: 8 }, () => skeletonText({ width: '80%' })).join(''))}
       </div>
-      <div style="padding: var(--space-6);">
+      <div class="settings-skeleton__content" style="padding: var(--space-6);">
         ${skeletonCard({ height: '400px' })}
       </div>
     </div>
+    <style>
+      @media (max-width: 768px) {
+        .settings-skeleton {
+          grid-template-columns: 1fr !important;
+        }
+        .settings-skeleton__nav {
+          display: none !important;
+        }
+        .settings-skeleton__content {
+          padding: var(--space-4) !important;
+        }
+      }
+    </style>
   `;
 }
 

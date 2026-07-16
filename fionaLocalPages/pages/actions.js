@@ -222,7 +222,7 @@ function renderActionsTab() {
 
   return html`
     <!-- Search Bar -->
-    <div style="position: relative; margin-bottom: var(--space-4); max-width: 360px;">
+    <div class="actions-search-wrap" style="position: relative; margin-bottom: var(--space-4); max-width: 360px;">
       <span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); display: flex; color: var(--text-muted); width: 16px; height: 16px; pointer-events: none;">
         ${ICONS.search}
       </span>
@@ -235,7 +235,7 @@ function renderActionsTab() {
 
     <!-- Actions List -->
     ${filtered.length === 0 ? html`
-      <div style="text-align: center; padding: var(--space-12); color: var(--text-muted);">
+      <div class="actions-empty-state" style="text-align: center; padding: var(--space-12); color: var(--text-muted);">
         <div style="font-size: 36px; margin-bottom: var(--space-4); opacity: 0.3;">${ICONS.bolt}</div>
         <div style="font-size: var(--font-size-md); font-weight: var(--font-weight-medium); margin-bottom: var(--space-2);">
           ${query ? 'No actions match your search' : 'No actions registered'}
@@ -261,7 +261,7 @@ function renderActionCard(action) {
     <div class="c-card action-card" data-action-name="${esc(name)}" style="margin-bottom: var(--space-3);">
       <div class="c-card__body" style="padding: var(--space-4);">
         <!-- Top Row: Name + Run button -->
-        <div style="display: flex; align-items: center; justify-content: space-between; gap: var(--space-3);">
+        <div class="action-card-main" style="display: flex; align-items: center; justify-content: space-between; gap: var(--space-3);">
           <div style="flex: 1; min-width: 0;">
             <div style="font-size: var(--font-size-md); font-weight: var(--font-weight-semibold); color: var(--text-primary); margin-bottom: 2px;">
               ${esc(name)}
@@ -282,6 +282,7 @@ function renderActionCard(action) {
           </div>
 
           <!-- Run button (only show if not confirming and not running) -->
+          <div class="action-run-btn-wrap">
           ${!isConfirming && !(resultState && resultState.loading) ? html`
             <button class="c-btn c-btn--primary c-btn--sm action-run-btn" data-action-name="${esc(name)}" title="Run ${esc(name)}">
               <span class="c-btn__icon">${ICONS.play}</span>
@@ -300,6 +301,7 @@ function renderActionCard(action) {
               Running…
             </button>
           ` : ''}
+          </div>
         </div>
 
         <!-- Inline Confirmation Section -->
@@ -319,7 +321,7 @@ function renderActionCard(action) {
             </label>
 
             <!-- Action buttons -->
-            <div style="display: flex; gap: var(--space-2);">
+            <div class="action-confirm-actions" style="display: flex; gap: var(--space-2);">
               <button class="c-btn c-btn--sm c-btn--ghost action-cancel-btn" data-action-name="${esc(name)}">
                 Cancel
               </button>
@@ -408,7 +410,7 @@ function renderHistoryTab() {
   return html`
     <div id="history-tab-content">
       ${items.length === 0 ? html`
-        <div style="text-align: center; padding: var(--space-12); color: var(--text-muted);">
+        <div class="actions-empty-state" style="text-align: center; padding: var(--space-12); color: var(--text-muted);">
           <div style="font-size: 36px; margin-bottom: var(--space-4); opacity: 0.3;">${ICONS.clock}</div>
           <div style="font-size: var(--font-size-md); font-weight: var(--font-weight-medium); margin-bottom: var(--space-2);">No execution history</div>
           <div style="font-size: var(--font-size-sm); color: var(--text-muted);">
@@ -438,9 +440,9 @@ function renderHistoryItem(event, index) {
   return html`
     <div class="c-card history-card" data-history-id="${esc(eventId)}" style="margin-bottom: 0;">
       <div class="c-card__body" style="padding: var(--space-3) var(--space-4);">
-        <div style="display: flex; align-items: center; gap: var(--space-3);">
+        <div class="history-card-main" style="display: flex; align-items: center; gap: var(--space-3);">
           <!-- Timestamp -->
-          <div style="flex-shrink: 0; min-width: 70px;">
+          <div class="history-timestamp" style="flex-shrink: 0; min-width: 70px;">
             <div style="font-size: var(--font-size-xs); font-weight: var(--font-weight-medium); color: var(--text-primary); font-variant-numeric: tabular-nums;">
               ${esc(formatTimestamp(timestamp))}
             </div>
@@ -460,7 +462,7 @@ function renderHistoryItem(event, index) {
           </div>
 
           <!-- Duration -->
-          <div style="font-size: var(--font-size-xxs); color: var(--text-muted); flex-shrink: 0; font-variant-numeric: tabular-nums; min-width: 50px; text-align: right;">
+          <div class="history-duration" style="font-size: var(--font-size-xxs); color: var(--text-muted); flex-shrink: 0; font-variant-numeric: tabular-nums; min-width: 50px; text-align: right;">
             ${formatDuration(duration)}
           </div>
 
@@ -758,8 +760,8 @@ function renderLibraryView() {
   }
 
   return html`
-    <div style="display: flex; justify-content: flex-end; margin-bottom: var(--space-4);">
-      <button class="c-btn c-btn--primary c-btn--sm" data-lib-action="create">
+    <div class="library-create-btn-wrap" style="display: flex; justify-content: flex-end; margin-bottom: var(--space-4);">
+      <button class="c-btn c-btn--primary c-btn--sm library-create-btn" data-lib-action="create">
         <span class="c-btn__icon">${ICONS.plus}</span>
         Create New Action
       </button>
@@ -775,7 +777,7 @@ function renderLibraryView() {
  */
 function renderLibraryEmptyState() {
   return html`
-    <div style="text-align: center; padding: var(--space-12); color: var(--text-muted);">
+    <div class="actions-empty-state" style="text-align: center; padding: var(--space-12); color: var(--text-muted);">
       <div style="font-size: 36px; margin-bottom: var(--space-4); opacity: 0.3;">
         ${ICONS.folder}
       </div>
@@ -785,7 +787,7 @@ function renderLibraryEmptyState() {
       <div style="font-size: var(--font-size-sm); color: var(--text-muted); margin-bottom: var(--space-6);">
         Create your first reusable action in the actions library.
       </div>
-      <button class="c-btn c-btn--primary" data-lib-action="create">
+      <button class="c-btn c-btn--primary library-create-btn" data-lib-action="create" style="min-width: 200px;">
         <span class="c-btn__icon">${ICONS.plus}</span>
         Create your first action
       </button>
@@ -806,9 +808,9 @@ function renderLibraryCard(action) {
   const isRunning = _state.actionResults[name] && _state.actionResults[name].loading;
 
   return html`
-    <div class="c-card" style="margin-bottom: 0;">
+    <div class="c-card library-card" style="margin-bottom: 0;">
       <div class="c-card__body" style="padding: var(--space-4);">
-        <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3);">
+        <div class="library-card-main" style="display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3);">
           <!-- Left: Info -->
           <div style="flex: 1; min-width: 0;">
             <div style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: 2px;">
@@ -828,7 +830,7 @@ function renderLibraryCard(action) {
               ${esc(filename)}
             </div>
             ${tags.length > 0 ? html`
-              <div style="display: flex; flex-wrap: wrap; gap: var(--space-1); margin-top: var(--space-2);">
+              <div class="action-tags-wrap" style="display: flex; flex-wrap: wrap; gap: var(--space-1); margin-top: var(--space-2);">
                 ${html.raw(tags.map((tag) => html`
                   <span class="c-badge c-badge--default" style="font-size: 9px; padding: 0 6px; text-transform: none; letter-spacing: 0; background: var(--bg-secondary);">
                     ${esc(tag)}
@@ -839,7 +841,7 @@ function renderLibraryCard(action) {
           </div>
 
           <!-- Right: Action Buttons -->
-          <div style="display: flex; align-items: center; gap: var(--space-1); flex-shrink: 0;">
+          <div class="library-card-actions" style="display: flex; align-items: center; gap: var(--space-1); flex-shrink: 0;">
             <button class="c-btn c-btn--icon c-btn--sm c-btn--ghost" data-lib-action="run" data-action-name="${esc(name)}" title="Run ${esc(name)}" ?disabled="${isRunning}">
               ${isRunning ? html`<span class="c-spinner c-spinner--sm" style="display: flex;">${ICONS.bolt}</span>` : ICONS.play}
             </button>
