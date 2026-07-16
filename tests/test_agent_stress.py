@@ -424,6 +424,12 @@ class EdgeCancellationToken(unittest.TestCase):
 class EdgeEmptyGoal(unittest.TestCase):
     """Empty goal to ForemanAgent — should not crash."""
 
+    def setUp(self) -> None:
+        # Reset the PersonalityRegistry singleton to prevent cross-test
+        # state corruption from the singleton pattern.
+        from Agent.personality import PersonalityRegistry
+        PersonalityRegistry._reset_instance()
+
     def test_empty_goal_simple(self) -> None:
         """ForemanAgent with empty goal should not crash."""
         mock_client = MagicMock(spec=OllamaClient)
@@ -488,6 +494,12 @@ class EdgeVeryLongMessage(unittest.TestCase):
 
 class EdgePersonalitySpecialChars(unittest.TestCase):
     """Personality name with special characters."""
+
+    def setUp(self) -> None:
+        # Reset the PersonalityRegistry singleton to prevent cross-test
+        # state corruption from the singleton pattern.
+        from Agent.personality import PersonalityRegistry
+        PersonalityRegistry._reset_instance()
 
     def test_special_chars_name(self) -> None:
         """Register a personality with special characters in name."""

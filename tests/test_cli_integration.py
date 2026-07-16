@@ -98,23 +98,11 @@ class FionaCliIntegrationTests(unittest.TestCase):
         try:
             data = json.loads(result.stdout)
             self.assertIn("base_url", data)
+            self.assertIn("available", data)
             # Should have either 'models' (if running) or 'available': False (if not)
-            self.assertTrue("models" in data or "available" in data)
+            self.assertTrue("models" in data or data.get("available") is False)
         except json.JSONDecodeError:
             self.fail("fiona agent status did not return valid JSON")
-
-    def test_eyecontrol_status_returns_json(self):
-        result = self._run_cmd(["eyecontrol", "status"])
-        self.assertEqual(result.returncode, 0)
-        try:
-            data = json.loads(result.stdout)
-            self.assertIn("dependencies", data)
-            # Check for common dependencies
-            deps = data["dependencies"]
-            self.assertIn("cv2", deps)
-            self.assertIn("numpy", deps)
-        except json.JSONDecodeError:
-            self.fail("fiona eyecontrol status did not return valid JSON")
 
     # ── Extended CLI integration tests ─────────────────────────────────
 

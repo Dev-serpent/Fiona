@@ -10,6 +10,9 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 # Mock heavy voice deps before importing voice_engine
+# IMPORTANT: Save and restore real modules to prevent cross-test corruption.
+_saved_modules = {}
+
 class _MockNDArray:
     """Mock numpy array that supports .tobytes() for wave writing."""
     def tobytes(self):
@@ -18,13 +21,17 @@ class _MockNDArray:
 mock_numpy = MagicMock()
 mock_numpy.ndarray = _MockNDArray
 mock_numpy.int16 = MagicMock()
+_saved_modules["numpy"] = sys.modules.get("numpy")
 sys.modules["numpy"] = mock_numpy
 
 mock_sd = MagicMock()
+_saved_modules["sounddevice"] = sys.modules.get("sounddevice")
 sys.modules["sounddevice"] = mock_sd
 
 mock_faster_whisper = MagicMock()
+_saved_modules["faster_whisper"] = sys.modules.get("faster_whisper")
 sys.modules["faster_whisper"] = mock_faster_whisper
+_saved_modules["faster_whisper.WhisperModel"] = sys.modules.get("faster_whisper.WhisperModel")
 sys.modules["faster_whisper.WhisperModel"] = MagicMock()
 
 # Avoid triggering actual imports that check deps
@@ -33,6 +40,17 @@ import FionaCore.voice_engine
 importlib.reload(FionaCore.voice_engine)
 
 from FionaCore.voice_engine import WhisperEngine, quick_transcribe
+
+# ---------------------------------------------------------------------------
+# Restore original modules IMMEDIATELY so other tests in the same process
+# are not affected by the mocks.
+# ---------------------------------------------------------------------------
+for _name, _mod in _saved_modules.items():
+    if _mod is None:
+        sys.modules.pop(_name, None)
+    else:
+        sys.modules[_name] = _mod
+del _name, _mod, _saved_modules
 
 
 class WhisperEngineInitTests(unittest.TestCase):

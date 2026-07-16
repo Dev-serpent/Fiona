@@ -371,6 +371,12 @@ Body.
 class TestBuiltinAgentsOnDisk(unittest.TestCase):
     """Verify that the builtin agent .md files in agents/builtins/ load correctly."""
 
+    def setUp(self) -> None:
+        # Reset the PersonalityRegistry singleton to prevent cross-test
+        # state corruption from the singleton pattern.
+        from Agent.personality import PersonalityRegistry
+        PersonalityRegistry._reset_instance()
+
     def _project_root(self) -> str:
         return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 

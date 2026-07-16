@@ -504,6 +504,7 @@ class TestCommandRegistryFiltering(unittest.TestCase):
             "fiona_status",
             "browser_status", "browser_navigate", "browser_click",
             "browser_type", "browser_screenshot",
+            "sciretrieval_query",
         }
         self.assertEqual(names, expected)
 
@@ -535,7 +536,7 @@ class TestCommandRegistryFiltering(unittest.TestCase):
         enforcer = PermissionEnforcer(p)
         reg = command_registry(enforcer=enforcer)
         names = {c["name"] for c in reg["commands"]}
-        self.assertEqual(len(names), 18)
+        self.assertEqual(len(names), 19)
 
 
 # ======================================================================

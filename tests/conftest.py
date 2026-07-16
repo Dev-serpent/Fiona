@@ -9,6 +9,18 @@ from typing import Any
 
 import pytest
 
+# Force early numpy import to prevent partial-import corruption
+# when third-party packages trigger numpy submodule loads before
+# the main numpy package is fully initialized.
+try:
+    import numpy as np  # noqa: F401
+    # Fully initialize numpy submodules to prevent lazy-import issues
+    np.array([1])
+    _ = np.zeros(3)
+    _ = np.ones(3)
+except Exception:
+    pass  # NumPy may not be installed in all environments
+
 from GNS3Automation.config import GNS3Config
 
 PROJECT_ID = "proj-integration-test"

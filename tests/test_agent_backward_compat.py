@@ -119,6 +119,7 @@ class TestBackwardCompat(unittest.TestCase):
             "fiona_status",
             "browser_status", "browser_navigate", "browser_click",
             "browser_type", "browser_screenshot",
+            "sciretrieval_query",
         }
         self.assertEqual(names, expected)
 

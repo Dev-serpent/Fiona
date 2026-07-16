@@ -993,7 +993,8 @@ def _run_agent(args: argparse.Namespace) -> None:
     )
     if args.agent_command == "status":
         try:
-            print(_pretty_json(client.health()))
+            health = client.health()
+            print(_pretty_json({"available": True, "base_url": client.base_url, **health}))
         except Exception as e:
             print(_pretty_json({"available": False, "error": str(e), "base_url": client.base_url}))
         return

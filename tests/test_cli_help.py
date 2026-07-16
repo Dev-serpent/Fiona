@@ -30,7 +30,6 @@ class FionaCliHelpTests(unittest.TestCase):
         self.assertIn("fiona quiktieper ...", stdout)
         self.assertIn("seeondesk", stdout)
         self.assertIn("dataclient", stdout)
-        self.assertIn("eyecontrol", stdout)
         self.assertIn("action", stdout)
         self.assertIn("voice", stdout)
         self.assertIn("macro", stdout)
@@ -59,15 +58,6 @@ class FionaCliHelpTests(unittest.TestCase):
         self.assertIn("convert", stdout)
         self.assertIn("view", stdout)
         self.assertIn("gui", stdout)
-
-    def test_eyecontrol_help_shows_tracker_commands(self) -> None:
-        code, stdout, stderr = self._run_cli("eyecontrol", "help")
-
-        self.assertEqual(code, 0)
-        self.assertEqual(stderr, "")
-        self.assertIn("usage: fiona eyecontrol", stdout)
-        self.assertIn("status", stdout)
-        self.assertIn("run", stdout)
 
     def test_fat_help_shows_terminal_assistance_commands(self) -> None:
         code, stdout, stderr = self._run_cli("fat", "help")

@@ -67,6 +67,15 @@ class PersonalityRegistry:
                     cls._instance = instance
         return cls._instance  # type: ignore[return-value]
 
+    @classmethod
+    def _reset_instance(cls) -> None:
+        """Reset the singleton for testing isolation.
+
+        Only intended for use in test ``setUp`` to prevent cross-test
+        state corruption from the singleton pattern.
+        """
+        cls._instance = None
+
     def __init__(self, *, agent_dirs: list[str] | None = None) -> None:
         """Initialise the registry.
 

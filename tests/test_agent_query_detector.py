@@ -295,6 +295,11 @@ class ForemanChatHandlerQueryDetectionTests(unittest.TestCase):
         import time
         from unittest.mock import MagicMock, patch
 
+        # Reset the PersonalityRegistry singleton to prevent cross-test
+        # state corruption from the singleton pattern.
+        from Agent.personality import PersonalityRegistry
+        PersonalityRegistry._reset_instance()
+
         from Agent import (
             CancellationToken,
             ChatStore,
