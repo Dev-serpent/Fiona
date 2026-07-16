@@ -565,28 +565,25 @@ Run all current tests:
 python -m unittest discover -s tests -v
 ```
 
-Latest result, run on 2026-06-25:
+Latest result, run on 2026-07-16:
 
 ```text
-Tests run via python -m pytest tests/ -v:
-  Passed: 1413+ (pytest, includes CLI surface suite)
-  Pre-existing env failures: ~14 (numpy.rec, no camera, no network)
+python -m pytest tests/ -x -v 2>&1 | tail -5
+  === 2578 passed, 7 warnings in 278.08s ===
 
-BrowserAutomation:
-  24 tests pass (state machine, graceful start, ERROR recovery)
-  28 tests skipped (old Playwright provider tests, preserved as dead code)
+All 26 pre-existing test failures fixed:
+  - Bug #1: Agent status success path missing fields (fiona/cli.py:994-999)
+  - Category A: Added sciretrieval_query to expected command sets (3 tests)
+  - Category B: Removed obsolete eyecontrol CLI tests (5 tests)
+  - Category D (flaky): numpy sys.modules corruption in test_voice_engine.py
+  - Category D (flaky): PersonalityRegistry singleton cross-test corruption (3 classes)
 
-CAD server + contracts:
-  98 + 140 = 238 tests pass
-
-CAD frontend (vitest):
-  87 tests pass
-
-CLI command surface (new):
-  2 tests, 54 subtests — all CLI --help output clean, 22 smoke commands pass
-
-Compile check:
-  python -m compileall passes for all packages
+Mobile-responsive UI complete:
+  - Hamburger sidebar overlay at 768px/480px breakpoints
+  - 44px+ touch targets via @media (pointer: coarse)
+  - All pages responsive: File Explorer, Actions, Settings, Macros
+  - Right panel overlays, bottom-sheet modals, proper toast positioning
+  - Long-press context menus for touch devices
 ```
 
 Test suites can be run independently:
@@ -800,6 +797,8 @@ None. All new code uses Python 3.11+ stdlib only.
 - `tests/test_agent_query_detector.py` — 53 tests
 
 Total new tests: ~367
+
+**Full project test count: 2578 passing, 0 failing** (2026-07-16)
 
 ## BrowserAutomation System
 

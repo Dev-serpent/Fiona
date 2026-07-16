@@ -665,3 +665,51 @@ Partial failures were all keyword coverage gaps — resolved by the expansion ab
 | `fionaLocalPages/pages/agent-status.js` | Added Science badge |
 | `SciRetrieval/data/keywordlist.json` | Expanded keywords (30/32/34 per domain) |
 | `tests/sci_retrieval/` (13 files) | NEW — 278 tests |
+
+---
+
+## Entry 15 — Mobile-Responsive UI + Full Test Suite Pass
+
+**Goal**: Make FLoP usable from Chrome on Android (360–430px viewport) and achieve a fully passing test suite.
+
+### Mobile-Responsive Shell (Milestones 1–2)
+| Component | Status |
+|---|---|
+| Hamburger sidebar overlay at 768px/480px breakpoints | ✅ |
+| 44px+ touch targets via `@media (pointer: coarse)` | ✅ |
+| `_toggleMobileSidebar()` / `_closeMobileSidebar()` in app.js | ✅ |
+| Ctrl+B mobile-aware, `data-action` dispatch for hamburger | ✅ |
+| Sidebar slide-in with backdrop overlay | ✅ |
+| Status bar compact on mobile, header shrinks to 44px | ✅ |
+| Long-press context menus (ContextMenu.js touch support) | ✅ |
+
+### Page-Level Mobile Responsive (Milestones 3–5)
+| Page | Features |
+|---|---|
+| **File Explorer** | Tree panel as overlay, preview as bottom sheet, drag handle, tree-toggle button, hidden date column, resize-aware |
+| **Actions** | Scrollable tabs, responsive cards (Run wraps below name), compact history |
+| **Settings** | Horizontal nav strip, stacked forms, skeleton responsive |
+| **Macros** | Responsive toolbar, recording controls stack, card footer wraps, shortcut capture stacks |
+| **Right panel** | Full-screen overlay on mobile |
+| **Modals, toasts, notifications** | Mobile-sized, properly positioned |
+
+### Debugging & Test Fixes (26 failures → 0)
+| Category | Root Cause | Fix |
+|---|---|---|
+| Bug #1 — Agent status response | Success path missing `base_url`/`available` fields | Wrapped with `{"available": True, "base_url": ...}` |
+| Category A — `sciretrieval_query` | 3 tests not updated when command added | Added to expected sets, bumped count 18→19 |
+| Category B — `eyecontrol` CLI | 5 tests referencing removed subcommand | Removed obsolete tests |
+| Category D — Flaky (numpy) | `test_voice_engine.py` replaced `sys.modules["numpy"]` with mock at module level, never restored | Restore original modules immediately after import |
+| Category D — Flaky (singleton) | `PersonalityRegistry` singleton corrupted across 3 test classes | Added `_reset_instance()` + setUp calls |
+
+### Statistics
+| Metric | Value |
+|---|---|
+| Total tests | **2578 passed, 0 failed** |
+| Files changed (mobile) | 11 files, +995 lines |
+| Files changed (bugfixes) | 12 files, +69/−56 lines |
+| New CSS (layout.css) | 1039 lines total with full responsive |
+| New CSS (components.css) | Touch-target overrides, overlay styles |
+| New JS (app.js) | 58 lines added for sidebar toggle, resize handler |
+| Pages mobile-adapted | File Explorer, Actions, Settings, Macros |
+| Git commits | `ad4fe86`, `6c4ce1c`, `9b71e47` |
