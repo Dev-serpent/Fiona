@@ -142,6 +142,36 @@
 <li>
     <a href="../../modules/fionalocalpages/" class="dropdown-item">Web Dashboard (fionaLocalPages)</a>
 </li>
+                                    
+<li>
+    <a href="../../modules/sciphi/" class="dropdown-item">SciPhi (Scientific OS)</a>
+</li>
+                                    
+<li>
+    <a href="../../modules/sciretrieval/" class="dropdown-item">SciRetrieval (Knowledge Retrieval)</a>
+</li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">SmartHome (IoT)</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../../smarthome/architecture/" class="dropdown-item">Architecture</a>
+</li>
+            
+<li>
+    <a href="../../smarthome/api/" class="dropdown-item">HomeBackend API</a>
+</li>
+            
+<li>
+    <a href="../../smarthome/extending/" class="dropdown-item">Extension Guide</a>
+</li>
+            
+<li>
+    <a href="../../smarthome/laboratory/" class="dropdown-item">Laboratory</a>
+</li>
+    </ul>
+  </li>
                                 </ul>
                             </li>
                             <li class="nav-item">
@@ -152,27 +182,6 @@
                             </li>
                             <li class="nav-item">
                                 <a href="../../prototypes/" class="nav-link">Prototypes</a>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown"  aria-expanded="false">SmartHome / IoT</a>
-                                <ul class="dropdown-menu">
-                                    
-<li>
-    <a href="../../smarthome/architecture/" class="dropdown-item">Architecture</a>
-</li>
-                                    
-<li>
-    <a href="../../smarthome/api/" class="dropdown-item">API Reference</a>
-</li>
-                                    
-<li>
-    <a href="../../smarthome/extending/" class="dropdown-item">Extension Guide</a>
-</li>
-                                    
-<li>
-    <a href="../../smarthome/laboratory/" class="dropdown-item">Laboratory</a>
-</li>
-                                </ul>
                             </li>
                             <li class="nav-item dropdown">
                                 <a href="#" class="nav-link dropdown-toggle active" aria-current="page" role="button" data-bs-toggle="dropdown"  aria-expanded="false">Developer</a>
@@ -537,6 +546,66 @@
 <td><code>tests/browser/test_playwright_provider.py</code> (28 skipped)</td>
 <td>Deprecated Playwright provider tests — preserved as dead code, all skipped via <code>@pytest.mark.skip</code></td>
 <td>browser automation (legacy)</td>
+</tr>
+<tr>
+<td><code>tests/test_agent_meta.py</code> (15)</td>
+<td>Verifies AgentMeta dataclass and PersonalityRegistry integration</td>
+<td>agent metadata</td>
+</tr>
+<tr>
+<td><code>tests/test_agent_loader.py</code> (25)</td>
+<td>Verifies YAML front matter parsing and agent file discovery</td>
+<td>agent file loading</td>
+</tr>
+<tr>
+<td><code>tests/test_agent_config.py</code> (18)</td>
+<td>Verifies AgentConfig defaults, YAML loading, env var overrides</td>
+<td>agent configuration</td>
+</tr>
+<tr>
+<td><code>tests/test_plugin_system.py</code> (49)</td>
+<td>Verifies PluginType enum, registration methods, scan_agents(), manifest filtering</td>
+<td>plugin system extension</td>
+</tr>
+<tr>
+<td><code>tests/test_agent_manager.py</code> (35)</td>
+<td>Verifies AgentManager lifecycle, enable/disable, hot-reload, unregister</td>
+<td>agent lifecycle management</td>
+</tr>
+<tr>
+<td><code>tests/test_agent_coordinator.py</code> (38)</td>
+<td>Verifies AgentRouter strategies, Coordinator pipeline, LLM fallback, error handling</td>
+<td>agent routing &amp; orchestration</td>
+</tr>
+<tr>
+<td><code>tests/test_agent_events.py</code> (28)</td>
+<td>Verifies 10 agent lifecycle event types, event publishing from AgentManager and Coordinator</td>
+<td>agent event bus integration</td>
+</tr>
+<tr>
+<td><code>tests/test_agent_memory.py</code> (57)</td>
+<td>Verifies MemoryProvider ABC, InMemoryProvider, ChatStoreMemoryProvider, MemoryManager, TTL, namespaces</td>
+<td>layered memory system</td>
+</tr>
+<tr>
+<td><code>tests/test_agent_skill.py</code> (39)</td>
+<td>Verifies Skill dataclass, SkillRegistry, YAML loading, discovery, tool suggestions</td>
+<td>skills &amp; tool registry</td>
+</tr>
+<tr>
+<td><code>tests/test_agent_llm.py</code> (46)</td>
+<td>Verifies LLMProvider ABC, OllamaProvider, OpenAIProvider, ProviderRegistry, LLMManager</td>
+<td>multi-provider LLM</td>
+</tr>
+<tr>
+<td><code>tests/test_validators.py</code> (37)</td>
+<td>Verifies CodeReviewValidator, SecurityReviewValidator, DocsReviewValidator, ValidationResult</td>
+<td>validation agents</td>
+</tr>
+<tr>
+<td><code>tests/test_introspection.py</code> (24)</td>
+<td>Verifies FionaInspector, system_status, list_agents, list_plugins, graceful degradation</td>
+<td>introspection API</td>
 </tr>
 <tr>
 <td><code>tests/contracts/test_interface_contracts.py</code></td>

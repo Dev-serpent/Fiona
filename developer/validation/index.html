@@ -142,6 +142,36 @@
 <li>
     <a href="../../modules/fionalocalpages/" class="dropdown-item">Web Dashboard (fionaLocalPages)</a>
 </li>
+                                    
+<li>
+    <a href="../../modules/sciphi/" class="dropdown-item">SciPhi (Scientific OS)</a>
+</li>
+                                    
+<li>
+    <a href="../../modules/sciretrieval/" class="dropdown-item">SciRetrieval (Knowledge Retrieval)</a>
+</li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">SmartHome (IoT)</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../../smarthome/architecture/" class="dropdown-item">Architecture</a>
+</li>
+            
+<li>
+    <a href="../../smarthome/api/" class="dropdown-item">HomeBackend API</a>
+</li>
+            
+<li>
+    <a href="../../smarthome/extending/" class="dropdown-item">Extension Guide</a>
+</li>
+            
+<li>
+    <a href="../../smarthome/laboratory/" class="dropdown-item">Laboratory</a>
+</li>
+    </ul>
+  </li>
                                 </ul>
                             </li>
                             <li class="nav-item">
@@ -152,27 +182,6 @@
                             </li>
                             <li class="nav-item">
                                 <a href="../../prototypes/" class="nav-link">Prototypes</a>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown"  aria-expanded="false">SmartHome / IoT</a>
-                                <ul class="dropdown-menu">
-                                    
-<li>
-    <a href="../../smarthome/architecture/" class="dropdown-item">Architecture</a>
-</li>
-                                    
-<li>
-    <a href="../../smarthome/api/" class="dropdown-item">API Reference</a>
-</li>
-                                    
-<li>
-    <a href="../../smarthome/extending/" class="dropdown-item">Extension Guide</a>
-</li>
-                                    
-<li>
-    <a href="../../smarthome/laboratory/" class="dropdown-item">Laboratory</a>
-</li>
-                                </ul>
                             </li>
                             <li class="nav-item dropdown">
                                 <a href="#" class="nav-link dropdown-toggle active" aria-current="page" role="button" data-bs-toggle="dropdown"  aria-expanded="false">Developer</a>
@@ -307,14 +316,18 @@
 <h1 id="validation">Validation</h1>
 <p>This page records the latest known verification commands and results.</p>
 <h2 id="latest-test-result">Latest Test Result</h2>
-<p>Recorded on 2026-06-23:</p>
-<pre><code class="language-text">1598 tests across Python and JavaScript:
-  Python:   1462 passed, 14 env-failures (pytest) — includes 49 CmdTrace/RecallVault tests
+<p>Recorded on 2026-07-04:</p>
+<pre><code class="language-text">2516+ tests across Python and JavaScript:
+  Python:   2516+ collected (pytest) — includes agent framework (meta, loader, config, plugin,
+            manager, coordinator, events, memory, skills, LLM, validators, introspection),
+            IoT subsystem (SmartHome, HomeBackend, GNS3Automation, Laboratory), CmdTrace,
+            RecallVault, CLI surface, browser, CAD, contracts, and core subsystem tests
   CAD JS:    87 passed (vitest)
   CAD Srv:   98 passed (pytest)
   compileall OK
 
-OK (14 pre-existing environment failures unrelated to roadmap work)
+3 pre-existing test failures unrelated to roadmap (sciretrieval_query not reflected in
+test expectations)
 </code></pre>
 <p>Command:</p>
 <pre><code class="language-bash">python -m pytest tests/ -v

@@ -142,6 +142,36 @@
 <li>
     <a href="../../modules/fionalocalpages/" class="dropdown-item">Web Dashboard (fionaLocalPages)</a>
 </li>
+                                    
+<li>
+    <a href="../../modules/sciphi/" class="dropdown-item">SciPhi (Scientific OS)</a>
+</li>
+                                    
+<li>
+    <a href="../../modules/sciretrieval/" class="dropdown-item">SciRetrieval (Knowledge Retrieval)</a>
+</li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">SmartHome (IoT)</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../../smarthome/architecture/" class="dropdown-item">Architecture</a>
+</li>
+            
+<li>
+    <a href="../../smarthome/api/" class="dropdown-item">HomeBackend API</a>
+</li>
+            
+<li>
+    <a href="../../smarthome/extending/" class="dropdown-item">Extension Guide</a>
+</li>
+            
+<li>
+    <a href="../../smarthome/laboratory/" class="dropdown-item">Laboratory</a>
+</li>
+    </ul>
+  </li>
                                 </ul>
                             </li>
                             <li class="nav-item">
@@ -152,27 +182,6 @@
                             </li>
                             <li class="nav-item">
                                 <a href="../../prototypes/" class="nav-link">Prototypes</a>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown"  aria-expanded="false">SmartHome / IoT</a>
-                                <ul class="dropdown-menu">
-                                    
-<li>
-    <a href="../../smarthome/architecture/" class="dropdown-item">Architecture</a>
-</li>
-                                    
-<li>
-    <a href="../../smarthome/api/" class="dropdown-item">API Reference</a>
-</li>
-                                    
-<li>
-    <a href="../../smarthome/extending/" class="dropdown-item">Extension Guide</a>
-</li>
-                                    
-<li>
-    <a href="../../smarthome/laboratory/" class="dropdown-item">Laboratory</a>
-</li>
-                                </ul>
                             </li>
                             <li class="nav-item dropdown">
                                 <a href="#" class="nav-link dropdown-toggle active" aria-current="page" role="button" data-bs-toggle="dropdown"  aria-expanded="false">Developer</a>
@@ -212,7 +221,7 @@
                             </a>
                         </li>
                             <li class="nav-item">
-                                <a rel="prev" href="../../smarthome/laboratory/" class="nav-link">
+                                <a rel="prev" href="../../prototypes/" class="nav-link">
                                     <i class="fa fa-arrow-left"></i> Previous
                                 </a>
                             </li>
@@ -288,6 +297,17 @@
 <li>Done: Tracing and metrics infrastructure (fiona/tracing.py, fiona/metrics.py).</li>
 <li>Done: Dependency injection container (fiona/di.py).</li>
 <li>Done: Fiona plugin system (fiona/plugin_system.py).</li>
+<li>Done: Markdown agent definitions — AgentMeta dataclass, YAML front matter parser, directory discovery in Agent/agent_meta.py and Agent/agent_loader.py.</li>
+<li>Done: Agent configuration system — AgentConfig dataclass, load_agent_config() with YAML + env var resolution, config/agent.yaml default.</li>
+<li>Done: Plugin system extension — PluginType enum (6 types), AgentPlugin ABC, scan_agents(), unregister_agent().</li>
+<li>Done: Agent Manager — AgentManager unified lifecycle facade over PersonalityRegistry + PluginManager, enable/disable/hot-reload.</li>
+<li>Done: Coordinator — AgentRouter (metadata-driven routing with 3 programmatic strategies + LLM fallback) and Coordinator pure orchestrator pipeline.</li>
+<li>Done: Event bus integration — 10 agent lifecycle events, event publishing from AgentManager and Coordinator.</li>
+<li>Done: Layered memory system — MemoryProvider ABC, InMemoryProvider, ChatStoreMemoryProvider, MemoryManager (6 namespaces), TTL support.</li>
+<li>Done: Skills &amp; tool registry — Skill dataclass, SkillRegistry, YAML discovery, 3 builtin skills.</li>
+<li>Done: Multi-provider LLM — LLMProvider ABC, OllamaProvider, OpenAIProvider, ProviderRegistry, LLMManager.</li>
+<li>Done: Validation agents — CodeReviewValidator, SecurityReviewValidator, DocsReviewValidator (all extend AgentPlugin).</li>
+<li>Done: Introspection API — FionaInspector facade for system_status, list_agents, list_skills, list_plugins, list_tools, check_llm_health, get_memory_summary, full_report.</li>
 </ol></div>
             </div>
         </div>

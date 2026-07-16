@@ -142,6 +142,36 @@
 <li>
     <a href="./" class="dropdown-item active" aria-current="page">Web Dashboard (fionaLocalPages)</a>
 </li>
+                                    
+<li>
+    <a href="../sciphi/" class="dropdown-item">SciPhi (Scientific OS)</a>
+</li>
+                                    
+<li>
+    <a href="../sciretrieval/" class="dropdown-item">SciRetrieval (Knowledge Retrieval)</a>
+</li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">SmartHome (IoT)</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../../smarthome/architecture/" class="dropdown-item">Architecture</a>
+</li>
+            
+<li>
+    <a href="../../smarthome/api/" class="dropdown-item">HomeBackend API</a>
+</li>
+            
+<li>
+    <a href="../../smarthome/extending/" class="dropdown-item">Extension Guide</a>
+</li>
+            
+<li>
+    <a href="../../smarthome/laboratory/" class="dropdown-item">Laboratory</a>
+</li>
+    </ul>
+  </li>
                                 </ul>
                             </li>
                             <li class="nav-item">
@@ -152,27 +182,6 @@
                             </li>
                             <li class="nav-item">
                                 <a href="../../prototypes/" class="nav-link">Prototypes</a>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown"  aria-expanded="false">SmartHome / IoT</a>
-                                <ul class="dropdown-menu">
-                                    
-<li>
-    <a href="../../smarthome/architecture/" class="dropdown-item">Architecture</a>
-</li>
-                                    
-<li>
-    <a href="../../smarthome/api/" class="dropdown-item">API Reference</a>
-</li>
-                                    
-<li>
-    <a href="../../smarthome/extending/" class="dropdown-item">Extension Guide</a>
-</li>
-                                    
-<li>
-    <a href="../../smarthome/laboratory/" class="dropdown-item">Laboratory</a>
-</li>
-                                </ul>
                             </li>
                             <li class="nav-item dropdown">
                                 <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown"  aria-expanded="false">Developer</a>
@@ -217,7 +226,7 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a rel="next" href="../../current-state/" class="nav-link">
+                                <a rel="next" href="../sciphi/" class="nav-link">
                                     Next <i class="fa fa-arrow-right"></i>
                                 </a>
                             </li>
@@ -275,6 +284,14 @@
             </li>
             <li class="nav-item" data-bs-level="2"><a href="#status" class="nav-link">Status</a>
               <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="3"><a href="#known-gaps" class="nav-link">Known Gaps</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="3"><a href="#planned-integration-paths" class="nav-link">Planned Integration Paths</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
               </ul>
             </li>
               </ul>
@@ -313,8 +330,8 @@
 <pre><code>Browser ──► Flask (port 5000) ──► aiohttp API (port 8765) ──► Fiona services
 </code></pre>
 <h3 id="api-backend-serverapppy">API Backend — <code>server/app.py</code></h3>
-<p>Python aiohttp HTTP server with <strong>24 handler modules</strong> and <strong>115+ REST API endpoints</strong> at <code>/api/v1/</code>. Also serves WebSocket at <code>/ws</code> for real-time push and SSE at <code>/api/v1/stream</code>.</p>
-<p><strong>Handler modules:</strong></p>
+<p>Python aiohttp HTTP server with <strong>23 handler modules</strong> and <strong>~140 REST API endpoints</strong> at <code>/api/v1/</code>. Also serves WebSocket at <code>/ws</code> for real-time push and SSE at <code>/api/v1/stream</code>.</p>
+<p><strong>Handler modules (sorted by endpoint count):</strong></p>
 <table>
 <thead>
 <tr>
@@ -325,124 +342,127 @@
 </thead>
 <tbody>
 <tr>
+<td><code>camcoms.py</code></td>
+<td>13</td>
+<td>CamComs status, config, logs, start/stop/restart, trusted device management, keygen, pairing status</td>
+</tr>
+<tr>
+<td><code>phiconnect.py</code></td>
+<td>13</td>
+<td>PhiConnect status, identity, messages, send, trust management, peer CRUD, config, key regeneration</td>
+</tr>
+<tr>
+<td><code>calendar.py</code></td>
+<td>10</td>
+<td>Calendar event CRUD, search, reminders (list, create, fire)</td>
+</tr>
+<tr>
+<td><code>bindings.py</code></td>
+<td>10</td>
+<td>Key binding list, save, create, update, delete, toggle, export, import, conflict check</td>
+</tr>
+<tr>
+<td><code>actions.py</code></td>
+<td>9</td>
+<td>Action list, run, history, stats, file CRUD (get, save, delete, toggle, duplicate)</td>
+</tr>
+<tr>
+<td><code>browser.py</code></td>
+<td>8</td>
+<td>Selenium browser automation (start, stop, status, navigate, click, type, screenshot, get_text)</td>
+</tr>
+<tr>
+<td><code>quiktieper.py</code></td>
+<td>8</td>
+<td>QuikTieper status, presets, desktop-app discovery, import-apps, assign-keys, launcher start/stop/status</td>
+</tr>
+<tr>
 <td><code>agents_crud.py</code></td>
 <td>7</td>
 <td>Agent CRUD (list, create, pause, resume, stop, restart) + Ollama model check</td>
 </tr>
 <tr>
-<td><code>browser.py</code></td>
-<td>7+</td>
-<td>Selenium browser automation (start, stop, status, navigate, click, type, screenshot)</td>
+<td><code>desktop.py</code></td>
+<td>7</td>
+<td>SeeOnDesk active window, snapshot, processes, applications, workspaces, system resources, app launch</td>
+</tr>
+<tr>
+<td><code>files.py</code></td>
+<td>6</td>
+<td>File browser (list, read, write, info, rename, delete)</td>
+</tr>
+<tr>
+<td><code>macros.py</code></td>
+<td>6</td>
+<td>Macro list, run, save, delete, export, import</td>
+</tr>
+<tr>
+<td><code>plugins.py</code></td>
+<td>6</td>
+<td>Plugin list, enable, disable, uninstall, install, check updates</td>
+</tr>
+<tr>
+<td><code>sciretrieval.py</code></td>
+<td>6</td>
+<td>Scientific knowledge retrieval (search, classify, providers, getdata, cache clear, enrich)</td>
+</tr>
+<tr>
+<td><code>notifications_handler.py</code></td>
+<td>5</td>
+<td>Notification feed (list, create, dismiss, mark-read, mark-all-read, clear)</td>
+</tr>
+<tr>
+<td><code>agent.py</code></td>
+<td>4</td>
+<td>AI chat (ask, goal), agent status, command registry</td>
+</tr>
+<tr>
+<td><code>settings_handler.py</code></td>
+<td>4</td>
+<td>Settings get/put, section-level get/put</td>
+</tr>
+<tr>
+<td><code>tasks.py</code></td>
+<td>4</td>
+<td>Task list, create, update, delete</td>
 </tr>
 <tr>
 <td><code>terminal.py</code></td>
 <td>4</td>
-<td>Terminal execution + autocomplete + cwd (tracked server-side, every response includes <code>"cwd"</code>)</td>
-</tr>
-<tr>
-<td><code>quiktieper.py</code></td>
-<td>8</td>
-<td>QuikTieper status, presets, desktop-app discovery, import-apps, assign-keys, launcher control</td>
-</tr>
-<tr>
-<td><code>settings_handler.py</code></td>
-<td>2</td>
-<td>Read/write <code>~/.config/fiona/settings.txt</code> (JSON)</td>
-</tr>
-<tr>
-<td><code>bindings.py</code></td>
-<td>3</td>
-<td>Key binding list, save, app discovery</td>
-</tr>
-<tr>
-<td><code>notifications_handler.py</code></td>
-<td>3</td>
-<td>Notification feed (list, create, dismiss)</td>
-</tr>
-<tr>
-<td><code>phiconnect.py</code></td>
-<td>5</td>
-<td>PhiConnect status, identity, messages, send, trust</td>
-</tr>
-<tr>
-<td><code>actions.py</code></td>
-<td>3</td>
-<td>Action list, get, run</td>
-</tr>
-<tr>
-<td><code>agent.py</code></td>
-<td>5</td>
-<td>Chat sessions CRUD + message streaming (SSE)</td>
+<td>Terminal execution, cwd, autocomplete, status</td>
 </tr>
 <tr>
 <td><code>system.py</code></td>
-<td>2</td>
-<td>Health check, capabilities</td>
+<td>3</td>
+<td>Health check, system status, system metrics</td>
+</tr>
+<tr>
+<td><code>config.py</code></td>
+<td>3</td>
+<td>Configuration list, read, update</td>
 </tr>
 <tr>
 <td><code>voice.py</code></td>
 <td>2</td>
-<td>Voice status, command execution</td>
+<td>Voice command parse, audio transcription</td>
 </tr>
 <tr>
-<td><code>files.py</code></td>
-<td>3</td>
-<td>File browser (list, read, write)</td>
-</tr>
-<tr>
-<td><code>config.py</code></td>
-<td>2</td>
-<td>Configuration get/update</td>
-</tr>
-<tr>
-<td><code>desktop.py</code></td>
-<td>1</td>
-<td>SeeOnDesk desktop status</td>
+<td><code>tools_handler.py</code></td>
+<td>0</td>
+<td>Tool list/execute/count handlers exist but <strong>routes are not yet registered in <code>app.py</code></strong> — these <code>fiona/tools</code> endpoints are unreachable via the dashboard.</td>
 </tr>
 <tr>
 <td><code>recall.py</code></td>
 <td>4</td>
-<td>RecallVault search, remember, forget, categories</td>
-</tr>
-<tr>
-<td><code>macros.py</code></td>
-<td>5</td>
-<td>Macro CRUD + run</td>
-</tr>
-<tr>
-<td><code>camcoms.py</code></td>
-<td>4</td>
-<td>CamComs status, encrypt, decrypt, send</td>
-</tr>
-<tr>
-<td><code>tasks.py</code></td>
-<td>1</td>
-<td>Task list</td>
-</tr>
-<tr>
-<td><code>plugins.py</code></td>
-<td>1</td>
-<td>Plugin list</td>
-</tr>
-<tr>
-<td><code>tools_handler.py</code></td>
-<td>2</td>
-<td>Tool list, execute</td>
-</tr>
-<tr>
-<td><code>sciretrieval.py</code></td>
-<td>1</td>
-<td>Scientific knowledge retrieval</td>
-</tr>
-<tr>
-<td><code>camcoms.py</code></td>
-<td>4</td>
-<td>Encryption/decryption service status</td>
+<td>RecallVault search, remember, forget, stats</td>
 </tr>
 </tbody>
 </table>
+<blockquote>
+<p><strong>GNS3 / IoT note:</strong> The IoT subsystem (SmartHome, HomeBackend, GNS3Automation, Laboratory) has <strong>no dashboard integration yet</strong>. The REST API, WebSocket, and MQTT service at <code>HomeBackend/</code> runs on a separate port (8080) and is managed entirely via CLI or direct HTTP. No GNS3Automation or SmartHome handler modules exist in the dashboard — these remain a standalone subsystem.</p>
+</blockquote>
 <h3 id="frontend-pages-templates">Frontend — Pages + Templates</h3>
-<p>27 page modules, each following the <code>createPage(routeInfo) → { render, mount, destroy }</code> pattern:</p>
+<p>26 page modules, each following the <code>createPage(routeInfo) → { render, mount, destroy }</code> pattern:</p>
 <ul>
 <li><strong><code>render()</code></strong> returns a mount-point <code>&lt;div&gt;</code> only</li>
 <li><strong><code>mount()</code></strong> is async — calls <code>await loadTemplate('name', data)</code> to fetch and inject HTML from <code>templates/{name}.html</code>, then binds events</li>
@@ -453,7 +473,7 @@
 - <code>{{{rawHtml}}}</code> — raw HTML (used for SVG icons)
 - <code>{{#if}}</code> / <code>{{#each}}</code> — conditionals and loops</p>
 <p><strong>The router also handles plain object exports</strong> (<code>{ render, mount, destroy }</code>) — this was a critical fix for blank pages when <code>browser.js</code>, <code>terminal.js</code>, and <code>file-explorer.js</code> exported objects instead of factory functions.</p>
-<p><strong>All 27 routes:</strong></p>
+<p><strong>All 26 routes:</strong></p>
 <table>
 <thead>
 <tr>
@@ -505,14 +525,14 @@
 <td><code>/bindings</code></td>
 <td>bindings.js</td>
 <td>bindings</td>
-<td>Two-panel key binding editor</td>
+<td>Two-pair key binding editor</td>
 </tr>
 <tr>
 <td>7</td>
 <td><code>/phiconnect</code></td>
 <td>phiconnect.js</td>
 <td>phiconnect</td>
-<td>Secure messaging status + send</td>
+<td>Secure messaging status + send, trust management</td>
 </tr>
 <tr>
 <td>8</td>
@@ -567,36 +587,36 @@
 <td>15</td>
 <td><code>/tasks</code></td>
 <td>tasks.js</td>
-<td>—</td>
+<td>tasks</td>
 <td>Kanban task board</td>
 </tr>
 <tr>
 <td>16</td>
 <td><code>/plugins</code></td>
 <td>plugins.js</td>
-<td>—</td>
-<td>Plugin manager (headless: true, Selenium-based)</td>
+<td>plugins</td>
+<td>Plugin manager (enable/disable/install/uninstall)</td>
 </tr>
 <tr>
 <td>17</td>
-<td><code>/logs</code></td>
-<td>logs.js</td>
-<td>—</td>
-<td>Log viewer</td>
-</tr>
-<tr>
-<td>18</td>
 <td><code>/config</code></td>
 <td>config.js</td>
 <td>config</td>
 <td>Config file editor</td>
 </tr>
 <tr>
-<td>19</td>
+<td>18</td>
 <td><code>/diagnostics</code></td>
 <td>diagnostics.js</td>
-<td>—</td>
+<td>system</td>
 <td>Health check grid</td>
+</tr>
+<tr>
+<td>19</td>
+<td><code>/calendar</code></td>
+<td>calendar.js</td>
+<td>calendar</td>
+<td>Event list, create, reminders</td>
 </tr>
 <tr>
 <td>20</td>
@@ -609,7 +629,7 @@
 <td>21</td>
 <td><code>/workspace</code></td>
 <td>workspace.js</td>
-<td>—</td>
+<td>desktop</td>
 <td>Project workspace overview</td>
 </tr>
 <tr>
@@ -617,7 +637,7 @@
 <td><code>/camcoms</code></td>
 <td>camcoms.js</td>
 <td>camcoms</td>
-<td>Service status + fingerprint</td>
+<td>Service status + fingerprint, key management</td>
 </tr>
 <tr>
 <td>23</td>
@@ -631,7 +651,7 @@
 <td><code>/desktop</code></td>
 <td>desktop.js</td>
 <td>desktop</td>
-<td>Active window + snapshot</td>
+<td>Active window + snapshot, processes, resources</td>
 </tr>
 <tr>
 <td>25</td>
@@ -661,7 +681,7 @@
 <tbody>
 <tr>
 <td><code>js/app.js</code></td>
-<td>App initialization, 27 route registrations, sidebar/shortcut inits, store wiring</td>
+<td>App initialization, 26 route registrations, sidebar/shortcut inits, store wiring</td>
 </tr>
 <tr>
 <td><code>js/router.js</code></td>
@@ -737,7 +757,56 @@
 </code></pre>
 <p>Open <code>http://fiona.agent:5000</code> in a browser (the aiohttp API server on port 8765 also runs but is not intended for direct browser access — it redirects to the Flask frontend).</p>
 <h2 id="status">Status</h2>
-<p>All 27 pages fully implemented. Production concerns (authentication, HTTPS) still being addressed. This is a supplementary control surface — the CLI and Tkinter GUI remain the primary Fiona interfaces.</p></div>
+<p>The dashboard is fully functional for all 26 pages and ~140 API endpoints. All pages implement loading, error, empty, and data states. The SPA router supports both factory functions and plain object exports (a critical fix for blank pages).</p>
+<h3 id="known-gaps">Known Gaps</h3>
+<table>
+<thead>
+<tr>
+<th>Gap</th>
+<th>Detail</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>No agent system dashboard pages</strong></td>
+<td>The new Markdown Agent Framework (AgentMeta, AgentManager, Coordinator, SkillRegistry, LLMManager, MemoryManager) and Validation Agents (code review, security review, docs review) have <strong>no dedicated dashboard UI</strong>. The only agent page (<code>/agents</code>) reflects the old Personality-based system.</td>
+<td>High</td>
+</tr>
+<tr>
+<td><strong>No IoT/GNS3 dashboard integration</strong></td>
+<td>SmartHome, HomeBackend, GNS3Automation, and Laboratory are CLI-only. No handler modules or pages exist for IoT device management, GNS3 topology building, or network automation in the dashboard.</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td><strong><code>tools_handler</code> routes not wired</strong></td>
+<td>The <code>tools_handler.py</code> module implements list, execute, and count handlers but <code>app.py</code> does not register any routes for it — the <code>fiona/tools/*</code> endpoints exist in code but are unreachable.</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td><strong>Flask Jinja2 templates empty</strong></td>
+<td><code>flask_routes.py</code> registers 25+ page routes, but the Jinja2 templates in <code>templates_jinja/</code> are empty stubs. The browser-visit UI path (Flask → Jinja2) is incomplete — all real UI rendering happens via the aiohosted SPA.</td>
+<td>Low</td>
+</tr>
+<tr>
+<td><strong>No authentication or HTTPS</strong></td>
+<td>The dashboard has no authentication layer and runs over plain HTTP. Suitable for local-only use.</td>
+<td>Low</td>
+</tr>
+<tr>
+<td><strong>Plugin management page references Selenium</strong></td>
+<td>The <code>/plugins</code> page title says "headless: true, Selenium-based" in earlier references, which is outdated — the current implementation uses REST API calls via <code>api.js</code>.</td>
+<td>Low</td>
+</tr>
+</tbody>
+</table>
+<h3 id="planned-integration-paths">Planned Integration Paths</h3>
+<ol>
+<li><strong>Agent System Dashboard</strong> — New pages for Agent Manager (list/register/enable/disable), Coordinator routing visualizer, Skill browser, LLM provider status, Memory namespace inspector, Validation results viewer.</li>
+<li><strong>IoT/GNS3 Dashboard</strong> — Handler modules for GNS3 project management, topology builder, node console; SmartHome device/automation CRUD; HomeBackend service status. Pages to match.</li>
+<li><strong>Tools API wiring</strong> — Register <code>fiona/tools/*</code> routes in <code>app.py</code> and add a tools explorer page.</li>
+<li><strong>Flask templates</strong> — Fill Jinja2 templates for server-rendered versions of key pages (chat, dashboard).</li>
+</ol></div>
             </div>
         </div>
 

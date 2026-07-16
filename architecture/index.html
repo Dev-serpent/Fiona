@@ -142,6 +142,36 @@
 <li>
     <a href="../modules/fionalocalpages/" class="dropdown-item">Web Dashboard (fionaLocalPages)</a>
 </li>
+                                    
+<li>
+    <a href="../modules/sciphi/" class="dropdown-item">SciPhi (Scientific OS)</a>
+</li>
+                                    
+<li>
+    <a href="../modules/sciretrieval/" class="dropdown-item">SciRetrieval (Knowledge Retrieval)</a>
+</li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">SmartHome (IoT)</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../smarthome/architecture/" class="dropdown-item">Architecture</a>
+</li>
+            
+<li>
+    <a href="../smarthome/api/" class="dropdown-item">HomeBackend API</a>
+</li>
+            
+<li>
+    <a href="../smarthome/extending/" class="dropdown-item">Extension Guide</a>
+</li>
+            
+<li>
+    <a href="../smarthome/laboratory/" class="dropdown-item">Laboratory</a>
+</li>
+    </ul>
+  </li>
                                 </ul>
                             </li>
                             <li class="nav-item">
@@ -152,27 +182,6 @@
                             </li>
                             <li class="nav-item">
                                 <a href="../prototypes/" class="nav-link">Prototypes</a>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown"  aria-expanded="false">SmartHome / IoT</a>
-                                <ul class="dropdown-menu">
-                                    
-<li>
-    <a href="../smarthome/architecture/" class="dropdown-item">Architecture</a>
-</li>
-                                    
-<li>
-    <a href="../smarthome/api/" class="dropdown-item">API Reference</a>
-</li>
-                                    
-<li>
-    <a href="../smarthome/extending/" class="dropdown-item">Extension Guide</a>
-</li>
-                                    
-<li>
-    <a href="../smarthome/laboratory/" class="dropdown-item">Laboratory</a>
-</li>
-                                </ul>
                             </li>
                             <li class="nav-item dropdown">
                                 <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown"  aria-expanded="false">Developer</a>
@@ -269,7 +278,7 @@
                     <div class="col-md-9" role="main">
 
 <h1 id="architecture">Architecture</h1>
-<p>Fiona is the umbrella package. It exposes 14 sibling subsystems and one web frontend.</p>
+<p>Fiona is the umbrella package. It exposes 18 sibling subsystems and one web frontend.</p>
 <h2 id="subsystems">Subsystems</h2>
 <ul>
 <li><code>FionaCore</code>: shared primitives — action routing, ACL enforcement, shell safety (30+ destructive patterns blocked), macro engine with branching/conditions/variable interpolation, verification prompts, desktop notifications, and speech/voice engine integration.</li>
@@ -286,6 +295,10 @@
 <li><code>CmdTrace</code>: JSONL-based observability and audit logging for routed actions, with action filtering and high-performance trace reads.</li>
 <li><code>RecallVault</code>: persistent key-value remembrance store for categorized memory — search, categories, and lifecycle management.</li>
 <li><code>BrowserAutomation</code>: browser automation via Selenium with session management, state machine, navigation, clicking, typing, and screenshot capture.</li>
+<li><code>SmartHome</code>: core IoT models, device drivers (8 types), registry, conditions, actions, and automation engine for smart home control.</li>
+<li><code>HomeBackend</code>: aiohttp-based REST API + WebSocket + MQTT client service for IoT device management and real-time event streaming.</li>
+<li><code>GNS3Automation</code>: async REST client for the GNS3 v2 API — project management, topology building, device discovery, and template management for network simulation.</li>
+<li><code>Laboratory</code>: pre-built GNS3 topology and standalone Docker Compose environment with 9 simulated IoT devices publishing to MQTT.</li>
 </ul>
 <h2 id="web-frontend-fionalocalpages">Web Frontend (fionaLocalPages)</h2>
 <p>The <code>fionaLocalPages/</code> directory contains a standalone aiohttp-based single-page application (SPA) that serves as a modern web dashboard for Fiona. It replaces the need for Tkinter GUIs for most operations.</p>
@@ -324,6 +337,10 @@ CmdTrace/              JSONL observability and audit trace for actions
 RecallVault/           persistent key-value remembrance store
 Voice/                 wake-word detection, push-to-talk, and feedback engine
 BrowserAutomation/     Selenium-based browser automation with state machine
+SmartHome/             IoT core models, device drivers, registry, automation engine
+HomeBackend/           aiohttp REST API + WebSocket + MQTT IoT service layer
+GNS3Automation/        Async REST client for GNS3 v2 API (network simulation)
+Laboratory/            Pre-built IoT lab topology, simulated devices, Docker Compose setup
 fionaLocalPages/       aiohttp SPA web frontend (REST + WebSocket + SSE)
 scripts/               local launch wrappers
 tests/                 Python tests

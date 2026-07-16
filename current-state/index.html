@@ -142,6 +142,36 @@
 <li>
     <a href="../modules/fionalocalpages/" class="dropdown-item">Web Dashboard (fionaLocalPages)</a>
 </li>
+                                    
+<li>
+    <a href="../modules/sciphi/" class="dropdown-item">SciPhi (Scientific OS)</a>
+</li>
+                                    
+<li>
+    <a href="../modules/sciretrieval/" class="dropdown-item">SciRetrieval (Knowledge Retrieval)</a>
+</li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">SmartHome (IoT)</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../smarthome/architecture/" class="dropdown-item">Architecture</a>
+</li>
+            
+<li>
+    <a href="../smarthome/api/" class="dropdown-item">HomeBackend API</a>
+</li>
+            
+<li>
+    <a href="../smarthome/extending/" class="dropdown-item">Extension Guide</a>
+</li>
+            
+<li>
+    <a href="../smarthome/laboratory/" class="dropdown-item">Laboratory</a>
+</li>
+    </ul>
+  </li>
                                 </ul>
                             </li>
                             <li class="nav-item">
@@ -152,27 +182,6 @@
                             </li>
                             <li class="nav-item">
                                 <a href="../prototypes/" class="nav-link">Prototypes</a>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown"  aria-expanded="false">SmartHome / IoT</a>
-                                <ul class="dropdown-menu">
-                                    
-<li>
-    <a href="../smarthome/architecture/" class="dropdown-item">Architecture</a>
-</li>
-                                    
-<li>
-    <a href="../smarthome/api/" class="dropdown-item">API Reference</a>
-</li>
-                                    
-<li>
-    <a href="../smarthome/extending/" class="dropdown-item">Extension Guide</a>
-</li>
-                                    
-<li>
-    <a href="../smarthome/laboratory/" class="dropdown-item">Laboratory</a>
-</li>
-                                </ul>
                             </li>
                             <li class="nav-item dropdown">
                                 <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown"  aria-expanded="false">Developer</a>
@@ -212,7 +221,7 @@
                             </a>
                         </li>
                             <li class="nav-item">
-                                <a rel="prev" href="../modules/fionalocalpages/" class="nav-link">
+                                <a rel="prev" href="../smarthome/laboratory/" class="nav-link">
                                     <i class="fa fa-arrow-left"></i> Previous
                                 </a>
                             </li>
@@ -301,11 +310,11 @@
 <li>voice wake-word detection, push-to-talk, and feedback engine</li>
 <li>BrowserAutomation module with Selenium lifecycle manager (start, stop, navigate, click, type, screenshot) — migrated from Playwright</li>
 <li>fionaLocalPages SPA web dashboard with aiohttp REST API (10+ handler modules, 40+ endpoints), WebSocket, SSE, 26 HTML/JS pages, terminal emulator, settings persistence, and QuikTieper API</li>
-<li>Python tests for core model, crypto, transport, service, GUI, ACL, shell safety, macro engine, pairing, voice, system tray, browser automation, and CLI command surface</li>
+<li>Python tests for core model, crypto, transport, service, GUI, ACL, shell safety, macro engine, pairing, voice, system tray, browser automation, CLI command surface, plugin system, agent meta/loader, config, agent manager, coordinator, agent events, memory system, skills, multi-provider LLM, validation agents, and introspection API</li>
 </ul>
 <h2 id="still-incomplete">Still Incomplete</h2>
 <ul>
-<li>no full AI planner/tool loop yet (Agent has think-act-observe but no long-term planning)</li>
+<li>no full AI planner/tool loop yet (Agent has think-act-observe, Coordinator for metadata-driven routing, but no autonomous long-term planning)</li>
 <li>no screen-recording or ML classifier layer for SeeOnDesk yet</li>
 <li>no Fiona training/fine-tuning pipeline yet</li>
 <li>ESP32 firmware crypto adapter is still a template, not hardware-verified</li>
@@ -316,14 +325,18 @@
 <h2 id="latest-known-validation">Latest Known Validation</h2>
 <p>The latest recorded project validation is:</p>
 <pre><code class="language-text">Tests:
-  Python:   1462+ passed (pytest) + 54 CLI surface subtests (49 CmdTrace/RecallVault tests)
+  Python:   2516+ collected (pytest) — includes agent framework (meta, loader, config, plugin,
+            manager, coordinator, events, memory, skills, LLM, validators, introspection),
+            CmdTrace, RecallVault, IoT (SmartHome, HomeBackend, GNS3Automation, Laboratory),
+            CLI surface, browser, CAD server, contracts, and core subsystem tests
   CAD JS:    87 passed (vitest)
   CAD Srv:   98 passed (pytest)
   Browser:   52 passed (pytest)
   compileall OK
   CLI surface: 2 tests, 54 subtests all pass
 
-~14 pre-existing environment failures unrelated to roadmap
+3 pre-existing test failures unrelated to roadmap (sciretrieval_query addition to command registry
+not reflected in test expectations)
 </code></pre>
 <p>Use the Validation page for the exact commands.</p></div>
             </div>

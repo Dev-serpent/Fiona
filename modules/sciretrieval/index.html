@@ -8,7 +8,7 @@
         
         
         <link rel="shortcut icon" href="../../img/favicon.ico">
-        <title>Vsee - Fiona</title>
+        <title>SciRetrieval (Knowledge Retrieval) - Fiona</title>
         <link href="../../css/bootstrap.min.css" rel="stylesheet">
         <link href="../../css/fontawesome.min.css" rel="stylesheet">
         <link href="../../css/brands.min.css" rel="stylesheet">
@@ -104,7 +104,7 @@
 </li>
                                     
 <li>
-    <a href="./" class="dropdown-item active" aria-current="page">Vsee</a>
+    <a href="../vsee/" class="dropdown-item">Vsee</a>
 </li>
                                     
 <li>
@@ -148,7 +148,7 @@
 </li>
                                     
 <li>
-    <a href="../sciretrieval/" class="dropdown-item">SciRetrieval (Knowledge Retrieval)</a>
+    <a href="./" class="dropdown-item active" aria-current="page">SciRetrieval (Knowledge Retrieval)</a>
 </li>
                                     
   <li class="dropdown-submenu">
@@ -221,12 +221,12 @@
                             </a>
                         </li>
                             <li class="nav-item">
-                                <a rel="prev" href="../dataclient/" class="nav-link">
+                                <a rel="prev" href="../sciphi/" class="nav-link">
                                     <i class="fa fa-arrow-left"></i> Previous
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a rel="next" href="../seeondesk/" class="nav-link">
+                                <a rel="next" href="../../smarthome/architecture/" class="nav-link">
                                     Next <i class="fa fa-arrow-right"></i>
                                 </a>
                             </li>
@@ -248,21 +248,41 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
         <ul class="nav flex-column">
             
-            <li class="nav-item" data-bs-level="1"><a href="#vsee" class="nav-link">Vsee</a>
+            <li class="nav-item" data-bs-level="1"><a href="#sciretrieval-scientific-knowledge-retrieval" class="nav-link">SciRetrieval — Scientific Knowledge Retrieval</a>
               <ul class="nav flex-column">
-            <li class="nav-item" data-bs-level="2"><a href="#open-the-app" class="nav-link">Open The App</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            <li class="nav-item" data-bs-level="2"><a href="#data-model" class="nav-link">Data Model</a>
+            <li class="nav-item" data-bs-level="2"><a href="#providers" class="nav-link">Providers</a>
               <ul class="nav flex-column">
               </ul>
             </li>
-            <li class="nav-item" data-bs-level="2"><a href="#capabilities" class="nav-link">Capabilities</a>
+            <li class="nav-item" data-bs-level="2"><a href="#workflow" class="nav-link">Workflow</a>
               <ul class="nav flex-column">
               </ul>
             </li>
-            <li class="nav-item" data-bs-level="2"><a href="#current-limits" class="nav-link">Current Limits</a>
+            <li class="nav-item" data-bs-level="2"><a href="#core-components" class="nav-link">Core Components</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="3"><a href="#retrievalmanager" class="nav-link">RetrievalManager</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="3"><a href="#normalizer" class="nav-link">Normalizer</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="3"><a href="#scilab" class="nav-link">SciLab</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="3"><a href="#cache" class="nav-link">Cache</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#cli" class="nav-link">CLI</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#status" class="nav-link">Status</a>
               <ul class="nav flex-column">
               </ul>
             </li>
@@ -273,38 +293,97 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
-<h1 id="vsee">Vsee</h1>
-<p>Vsee is Fiona's current holography software layer. It is a point/edge 3D wireframe viewer, not true optical holography yet.</p>
-<h2 id="open-the-app">Open The App</h2>
-<pre><code class="language-bash">python3 -m fiona.cli vsee
+<h1 id="sciretrieval-scientific-knowledge-retrieval">SciRetrieval — Scientific Knowledge Retrieval</h1>
+<p>SciRetrieval is a scientific knowledge retrieval subsystem. It searches, normalises,
+resolves, and processes scientific data from multiple online providers into
+structured <code>ScientificEntity</code> objects.</p>
+<h2 id="providers">Providers</h2>
+<p>SciRetrieval can query three scientific data sources:</p>
+<table>
+<thead>
+<tr>
+<th>Provider</th>
+<th>Data</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>NCBI</strong> (Entrez)</td>
+<td>Genes, proteins, sequences — via the NCBI E-utilities API</td>
+</tr>
+<tr>
+<td><strong>PubChem</strong></td>
+<td>Chemical compounds, substances — via the PubChem PUG REST API</td>
+</tr>
+<tr>
+<td><strong>NIST</strong> (Chemistry WebBook)</td>
+<td>Chemical and physical property data — via HTML scraping</td>
+</tr>
+</tbody>
+</table>
+<p>Each provider has a corresponding normaliser that converts raw API responses into
+a consistent <code>ScientificEntity</code> schema.</p>
+<h2 id="workflow">Workflow</h2>
+<pre><code>Raw provider data
+       │
+       ▼
+  Normalizer (per-provider adapter)
+       │
+       ▼
+  EntityResolver (dedup, merge aliases, canonical IDs)
+       │
+       ▼
+  SciLab (rank, deduplicate, summarize, generate context)
+       │
+       ▼
+  Structured ScientificEntity list
 </code></pre>
-<p>With specific input files:</p>
-<pre><code class="language-bash">python3 -m fiona.cli vsee --points ./points.csv --edges ./edges.csv
+<h2 id="core-components">Core Components</h2>
+<h3 id="retrievalmanager">RetrievalManager</h3>
+<p>The main entry point for multi-provider queries:</p>
+<pre><code class="language-python">from SciRetrieval import RetrievalManager
+
+manager = RetrievalManager()
+result = manager.get_data(
+    query=&quot;aspirin&quot;,
+    providers=[&quot;pubchem&quot;, &quot;ncbi&quot;, &quot;nist&quot;],
+    max_results=10,
+)
 </code></pre>
-<p>The Vsee process is a foreground GUI app and stays open until the window is closed.</p>
-<h2 id="data-model">Data Model</h2>
-<p>Points are rows with an id and 3D coordinates:</p>
-<pre><code class="language-csv">id,x,y,z
-A,-1,-1,-1
-B,1,-1,-1
+<h3 id="normalizer">Normalizer</h3>
+<p>Per-provider adapters that parse raw responses into <code>ScientificEntity</code> objects:</p>
+<pre><code class="language-python">from SciRetrieval.normalizer import Normalizer
+
+normalizer = Normalizer()
+entity = normalizer.normalize(&quot;pubchem&quot;, raw_json)
 </code></pre>
-<p>Edges connect point ids:</p>
-<pre><code class="language-csv">source,target
-A,B
+<h3 id="scilab">SciLab</h3>
+<p>Post-processing pipeline that ranks, deduplicates, summarises, and generates
+context for a set of entities:</p>
+<pre><code class="language-python">from SciRetrieval.scilab.engine import SciLab
+
+scilab = SciLab()
+result = scilab.process(entities, query=&quot;aspirin&quot;)
 </code></pre>
-<h2 id="capabilities">Capabilities</h2>
-<ul>
-<li>load point and edge CSV files</li>
-<li>edit point and edge tables in the GUI</li>
-<li>validate duplicate point IDs</li>
-<li>validate missing edge references</li>
-<li>project 3D coordinates into a 2D canvas using <code>numpy</code></li>
-<li>parse editable table data using <code>pandas</code></li>
-<li>render connected wireframe shapes</li>
-<li>adjust rotation and scale controls</li>
-</ul>
-<h2 id="current-limits">Current Limits</h2>
-<p>Vsee is currently a coordinate viewer. Saved scenes, richer primitives, camera presets, animation, live data binding, and real projection/hologram output are future work.</p></div>
+<h3 id="cache">Cache</h3>
+<p>Multi-backend cache with conversation and dataset tiers:</p>
+<pre><code class="language-python">from SciRetrieval.cache.cache_backend import CacheBackend
+
+cache = CacheBackend()
+cache.set(&quot;pubchem:aspirin&quot;, data, ttl=3600)
+cached = cache.get(&quot;pubchem:aspirin&quot;)
+</code></pre>
+<h2 id="cli">CLI</h2>
+<pre><code class="language-bash">fiona sire search &quot;aspirin&quot;                   # Search all providers
+fiona sire search &quot;BRCA1&quot; --providers ncbi     # Search specific provider
+fiona sire classify &quot;aspirin&quot;                  # Classify query domain
+fiona sire providers                           # List available providers
+fiona sire cache clear                         # Clear result cache
+</code></pre>
+<h2 id="status">Status</h2>
+<p>Fully functional. Retrieval, normalisation, entity resolution, ranking,
+deduplication, and context generation all work. All three providers (NCBI,
+PubChem, NIST) are integrated with their respective normalisers.</p></div>
             </div>
         </div>
 
