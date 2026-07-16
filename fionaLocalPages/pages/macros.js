@@ -30,6 +30,7 @@ import {
   skeletonHeading,
 } from '../js/components/LoadingSkeleton.js';
 import { toast } from '../js/components/Toast.js';
+import { contextMenu } from '../js/components/ContextMenu.js';
 import { loadTemplate } from '../js/template-loader.js';
 
 /* ── Constants ──────────────────────────────────────────────────────────── */
@@ -177,7 +178,7 @@ async function renderPage(container) {
       macrosListContent = renderEmptyState();
     } else {
       macrosListContent = html`
-        <div style="text-align: center; padding: var(--space-8); color: var(--text-muted);">
+        <div class="macro-empty-state" style="text-align: center; padding: var(--space-8); color: var(--text-muted);">
           <div style="font-size: 28px; margin-bottom: var(--space-3); opacity: 0.3;">${ICONS.search}</div>
           <div style="font-size: var(--font-size-md);">No macros match "${esc(query)}"</div>
         </div>
@@ -228,7 +229,7 @@ async function renderPage(container) {
 
 function renderEmptyState() {
   return html`
-    <div style="text-align: center; padding: var(--space-12); color: var(--text-muted);">
+    <div class="macro-empty-state" style="text-align: center; padding: var(--space-12); color: var(--text-muted);">
       <div style="font-size: 36px; margin-bottom: var(--space-4); opacity: 0.3;">${ICONS.play}</div>
       <div style="font-size: var(--font-size-md); font-weight: var(--font-weight-medium); margin-bottom: var(--space-2);">No macros defined</div>
       <div style="font-size: var(--font-size-sm); color: var(--text-muted);">Create a macro to see it here.</div>
@@ -256,12 +257,12 @@ function renderMacroCard(entry) {
            style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; padding: var(--space-3) var(--space-4);"
            data-action="toggle-expand" data-macro-name="${esc(name)}">
         <div style="display: flex; align-items: center; gap: var(--space-3); min-width: 0;">
-          <div style="width: 32px; height: 32px; display: grid; place-items: center; border-radius: var(--radius-md); background: var(--accent-muted); color: var(--accent); flex-shrink: 0;">
+          <div class="macro-card-icon" style="width: 32px; height: 32px; display: grid; place-items: center; border-radius: var(--radius-md); background: var(--accent-muted); color: var(--accent); flex-shrink: 0;">
             ${ICONS.play}
           </div>
           <div style="min-width: 0;">
             <div style="display: flex; align-items: center; gap: var(--space-2);">
-              <span style="font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); color: var(--text-primary);">
+              <span class="macro-card-name" style="font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); color: var(--text-primary);">
                 ${esc(name)}
               </span>
               ${shortcut ? html`<span style="font-size: var(--font-size-xxs); padding: 1px 6px; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); color: var(--text-muted); font-family: var(--font-mono);">${esc(shortcut)}</span>` : ''}
@@ -306,9 +307,9 @@ function renderMacroCard(entry) {
           </div>
 
           <!-- Action Buttons -->
-          <div class="c-card__footer" style="border-top: 1px solid var(--border-subtle); padding: var(--space-3) var(--space-4);">
+          <div class="c-card__footer macro-card-footer" style="border-top: 1px solid var(--border-subtle); padding: var(--space-3) var(--space-4);">
             ${isEditing ? html`
-              <div style="display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap;">
+              <div class="macro-footer-row" style="display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap;">
                 <button class="c-btn c-btn--primary c-btn--sm" data-action="save-macro-edits" data-macro-name="${esc(name)}">
                   <span class="c-btn__icon">${ICONS.check}</span>
                   Save
@@ -325,7 +326,7 @@ function renderMacroCard(entry) {
                 <span style="font-size: var(--font-size-xxs); color: var(--text-muted);">Drag handle or use arrows to reorder</span>
               </div>
             ` : html`
-              <div style="display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap;">
+              <div class="macro-footer-row" style="display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap;">
                 <button class="c-btn c-btn--primary c-btn--sm macro-run-btn"
                         data-action="run-macro" data-macro-name="${esc(name)}"
                         ${isLoading ? 'disabled' : ''}>
@@ -333,7 +334,7 @@ function renderMacroCard(entry) {
                   ${isDryRun ? 'Preview' : 'Run'}
                 </button>
 
-                <label style="display: flex; align-items: center; gap: var(--space-1); font-size: var(--font-size-xs); color: var(--text-muted); cursor: pointer; user-select: none;">
+                <label class="macro-dryrun-label" style="display: flex; align-items: center; gap: var(--space-1); font-size: var(--font-size-xs); color: var(--text-muted); cursor: pointer; user-select: none;">
                   <input type="checkbox" class="macro-dryrun-toggle" data-macro-name="${esc(name)}"
                          ${isDryRun ? 'checked' : ''}
                          style="accent-color: var(--accent);" />
@@ -378,7 +379,7 @@ function renderMacroCard(entry) {
           ${isCapturing ? html`
             <div style="border-top: 1px solid var(--border-subtle); padding: var(--space-3) var(--space-4); background: var(--surface-alt);">
               <div style="font-size: var(--font-size-xs); color: var(--text-muted); margin-bottom: var(--space-2);">Press a key combination for this macro…</div>
-              <div style="display: flex; align-items: center; gap: var(--space-2);">
+              <div class="macro-shortcut-capture" style="display: flex; align-items: center; gap: var(--space-2);">
                 <input type="text" class="c-input shortcut-capture-input"
                        data-macro-name="${esc(name)}"
                        placeholder="Press keys…"
@@ -421,7 +422,7 @@ function renderStepItem(step, idx) {
   const description = step.description || step.desc || '';
 
   return html`
-    <div style="display: flex; gap: var(--space-3); padding: var(--space-2) 0; border-bottom: 1px solid var(--border-subtle); align-items: flex-start;">
+    <div class="macro-step-item" style="display: flex; gap: var(--space-3); padding: var(--space-2) 0; border-bottom: 1px solid var(--border-subtle); align-items: flex-start;">
       <span class="c-badge" style="flex-shrink: 0; min-width: 24px; text-align: center; font-size: var(--font-size-xxs);">${stepNum}</span>
       <div style="min-width: 0; flex: 1;">
         <div style="font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--text-primary); white-space: pre-wrap; word-break: break-all;">
@@ -1007,6 +1008,73 @@ function mountComponents(container) {
     const handler = () => exportMacros();
     exportBtn.addEventListener('click', handler);
     listeners.push(() => exportBtn.removeEventListener('click', handler));
+  }
+
+  // ── Long-press on macro cards (mobile context menu) ──
+  const macrosList = container.querySelector('#macros-list');
+  if (macrosList) {
+    let longPressTimer = null;
+
+    const touchStart = (e) => {
+      const card = e.target.closest('.macro-card');
+      if (!card) return;
+      longPressTimer = setTimeout(() => {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const macroName = card.dataset.macroName;
+        if (!macroName) return;
+        const isExpanded = _state.expanded.has(macroName);
+        contextMenu.showContextMenu(touch.clientX, touch.clientY, [
+          {
+            label: isExpanded ? 'Collapse' : 'Expand',
+            icon: 'chevronDown',
+            handler: () => {
+              if (isExpanded) _state.expanded.delete(macroName);
+              else _state.expanded.add(macroName);
+              renderPage(container);
+            },
+          },
+          { divider: true },
+          {
+            label: 'Run',
+            icon: 'play',
+            handler: () => runMacro(macroName, _state.dryRunEnabled[macroName]),
+          },
+          {
+            label: 'Edit',
+            icon: 'edit',
+            handler: () => enterEditMode(macroName),
+          },
+          { divider: true },
+          {
+            label: 'Copy Name',
+            icon: 'copy',
+            handler: () => navigator.clipboard.writeText(macroName).catch(() => {}),
+          },
+          {
+            label: 'Delete',
+            icon: 'trash',
+            danger: true,
+            handler: () => {
+              if (!confirm(`Delete macro "${macroName}"?`)) return;
+              deleteMacro(macroName);
+            },
+          },
+        ]);
+      }, 500);
+    };
+
+    const touchEnd = () => { if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; } };
+    const touchMove = () => { if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; } };
+
+    macrosList.addEventListener('touchstart', touchStart, { passive: false });
+    macrosList.addEventListener('touchend', touchEnd);
+    macrosList.addEventListener('touchmove', touchMove);
+    listeners.push(() => {
+      macrosList.removeEventListener('touchstart', touchStart);
+      macrosList.removeEventListener('touchend', touchEnd);
+      macrosList.removeEventListener('touchmove', touchMove);
+    });
   }
 
   _state._boundListeners = listeners;

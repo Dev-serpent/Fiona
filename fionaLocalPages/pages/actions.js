@@ -17,6 +17,7 @@ import {
 } from '../js/components/LoadingSkeleton.js';
 import { toast } from '../js/components/Toast.js';
 import { modal } from '../js/components/Modal.js';
+import { contextMenu } from '../js/components/ContextMenu.js';
 import { loadTemplate } from '../js/template-loader.js';
 
 /* ── Constants ──────────────────────────────────────────────────────────── */
@@ -744,6 +745,69 @@ function mountComponents(container) {
     };
     libContent.addEventListener('click', createRef);
     listeners.push(() => libContent.removeEventListener('click', createRef));
+  }
+
+  // ── Long-press on action cards (mobile context menu) ──
+  const actionCardsContainer = container.querySelector('#actions-tab-content');
+  if (actionCardsContainer) {
+    let longPressTimer = null;
+    let longPressTriggered = false;
+
+    const touchStart = (e) => {
+      const card = e.target.closest('.action-card');
+      if (!card) return;
+      longPressTriggered = false;
+      longPressTimer = setTimeout(() => {
+        longPressTriggered = true;
+        e.preventDefault();
+        const touch = e.touches[0];
+        const actionName = card.dataset.actionName;
+        if (!actionName) return;
+        const resultState = _state.actionResults[actionName];
+        contextMenu.showContextMenu(touch.clientX, touch.clientY, [
+          {
+            label: 'Run',
+            icon: 'play',
+            handler: () => {
+              const dryRunToggle = card.querySelector('.action-dry-run-toggle');
+              const dryRun = dryRunToggle ? dryRunToggle.checked : false;
+              _state.confirmingAction = null;
+              runAction(actionName, dryRun);
+            },
+          },
+          { label: 'Copy Name', icon: 'copy', handler: () => navigator.clipboard.writeText(actionName).catch(() => {}) },
+          {
+            label: resultState && _state.expandedResults.has(actionName) ? 'Collapse Result' : 'View Result',
+            icon: 'chevronDown',
+            disabled: !resultState || (!resultState.result && !resultState.error),
+            handler: () => {
+              if (_state.expandedResults.has(actionName)) {
+                _state.expandedResults.delete(actionName);
+              } else {
+                _state.expandedResults.add(actionName);
+              }
+              renderPage(container);
+            },
+          },
+        ]);
+      }, 500);
+    };
+
+    const touchEnd = () => {
+      if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+    };
+    const touchMove = () => {
+      if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+    };
+
+    actionCardsContainer.addEventListener('touchstart', touchStart, { passive: false });
+    actionCardsContainer.addEventListener('touchend', touchEnd);
+    actionCardsContainer.addEventListener('touchmove', touchMove);
+    listeners.push(() => {
+      actionCardsContainer.removeEventListener('touchstart', touchStart);
+      actionCardsContainer.removeEventListener('touchend', touchEnd);
+      actionCardsContainer.removeEventListener('touchmove', touchMove);
+    });
   }
 }
 
